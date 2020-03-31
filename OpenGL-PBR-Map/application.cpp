@@ -141,6 +141,7 @@ bool Application::Init() {
 
   // Uniform変数の位置を取得
   model_loc_ = glGetUniformLocation(program_, "Model");
+  model_it_loc_ = glGetUniformLocation(program_, "ModelIT");
   view_projection_loc_ = glGetUniformLocation(program_, "ViewProjection");
 
   // Meshの読み込み
@@ -224,7 +225,9 @@ void Application::Update(const double delta_time) {
 
   for (auto&& mesh_entity : mesh_entities_) {
     auto model = mesh_entity.GetModelMatrix();
+    auto model_it = glm::inverseTranspose(model);
     glUniformMatrix4fv(model_loc_, 1, GL_FALSE, &model[0][0]);
+    glUniformMatrix4fv(model_it_loc_, 1, GL_FALSE, &model_it[0][0]);
     mesh_entity.mesh_->Draw();
   }
 }

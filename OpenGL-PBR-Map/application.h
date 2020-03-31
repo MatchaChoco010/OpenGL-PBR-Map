@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 #include <iostream>
 #include <string>
 
@@ -40,6 +41,7 @@ class Application {
   GLFWwindow* window_;
   GLuint program_;
   GLuint model_loc_;
+  GLuint model_it_loc_;
   GLuint view_projection_loc_;
   std::vector<MeshEntity> mesh_entities_;
   std::unique_ptr<Camera> camera_;
