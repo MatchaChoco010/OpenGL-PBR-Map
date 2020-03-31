@@ -147,12 +147,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="mesh_entity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="mesh_entity.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

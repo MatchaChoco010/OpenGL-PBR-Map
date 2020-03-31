@@ -139,8 +139,25 @@ bool Application::Init() {
   // Shaderプログラムの作成
   program_ = createProgram("shader.vert", "shader.frag");
 
-  // 三角形メッシュの作成
-  triangle_ = Mesh::CreateTriangleMesh();
+  // Uniform変数の位置を取得
+  model_loc_ = glGetUniformLocation(program_, "Model");
+  view_projection_loc_ = glGetUniformLocation(program_, "ViewProjection");
+
+  // Meshの読み込み
+  auto mesh = Mesh::LoadObjMesh("monkey.obj");
+
+  // MeshEntityの作成
+  mesh_entities_.emplace_back(mesh, glm::vec3(0.0f, 0.0f, 0.0f),
+                              glm::vec3(0.0f), glm::vec3(1.0f));
+  mesh_entities_.emplace_back(mesh, glm::vec3(2.0f, 0.0f, 0.0f),
+                              glm::vec3(0.0f), glm::vec3(1.0f));
+  mesh_entities_.emplace_back(mesh, glm::vec3(-2.0f, 0.0f, 0.0f),
+                              glm::vec3(0.0f), glm::vec3(1.0f));
+
+  // Cameraの作成
+  camera_ = std::make_unique<Camera>(
+      glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f), glm::radians(60.0f),
+      static_cast<float>(width) / height, 0.1f, 100.0f);
 
   return true;
 }
@@ -192,15 +209,24 @@ bool Application::InitWindow(const GLuint width, const GLuint height) {
       },
       0);
 
+  glEnable(GL_DEPTH_TEST);
+
   return true;
 }
 
 void Application::Update(const double delta_time) {
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glUseProgram(program_);
 
-  triangle_->Draw();
+  auto view_projection = camera_->GetViewProjectionMatrix();
+  glUniformMatrix4fv(view_projection_loc_, 1, GL_FALSE, &view_projection[0][0]);
+
+  for (auto&& mesh_entity : mesh_entities_) {
+    auto model = mesh_entity.GetModelMatrix();
+    glUniformMatrix4fv(model_loc_, 1, GL_FALSE, &model[0][0]);
+    mesh_entity.mesh_->Draw();
+  }
 }
 
 }  // namespace game

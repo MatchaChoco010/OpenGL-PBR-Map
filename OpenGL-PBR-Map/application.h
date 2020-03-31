@@ -9,7 +9,9 @@
 #include <iostream>
 #include <string>
 
+#include "camera.h"
 #include "mesh.h"
+#include "mesh_entity.h"
 
 namespace game {
 
@@ -37,7 +39,10 @@ class Application {
  private:
   GLFWwindow* window_;
   GLuint program_;
-  std::unique_ptr<Mesh> triangle_;
+  GLuint model_loc_;
+  GLuint view_projection_loc_;
+  std::vector<MeshEntity> mesh_entities_;
+  std::unique_ptr<Camera> camera_;
 
   /**
    * @brief 初期化処理
