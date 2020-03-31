@@ -143,6 +143,8 @@ bool Application::Init() {
   model_loc_ = glGetUniformLocation(program_, "Model");
   model_it_loc_ = glGetUniformLocation(program_, "ModelIT");
   view_projection_loc_ = glGetUniformLocation(program_, "ViewProjection");
+  world_camera_position_loc_ =
+      glGetUniformLocation(program_, "worldCameraPosition");
 
   // Meshの読み込み
   auto mesh = Mesh::LoadObjMesh("monkey.obj");
@@ -221,13 +223,18 @@ void Application::Update(const double delta_time) {
   glUseProgram(program_);
 
   auto view_projection = camera_->GetViewProjectionMatrix();
+  auto camera_position = camera_->GetPosition();
+
   glUniformMatrix4fv(view_projection_loc_, 1, GL_FALSE, &view_projection[0][0]);
+  glUniform3fv(world_camera_position_loc_, 1, &camera_position[0]);
 
   for (auto&& mesh_entity : mesh_entities_) {
     auto model = mesh_entity.GetModelMatrix();
     auto model_it = glm::inverseTranspose(model);
+
     glUniformMatrix4fv(model_loc_, 1, GL_FALSE, &model[0][0]);
     glUniformMatrix4fv(model_it_loc_, 1, GL_FALSE, &model_it[0][0]);
+
     mesh_entity.mesh_->Draw();
   }
 }

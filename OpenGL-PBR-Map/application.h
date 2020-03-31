@@ -43,6 +43,7 @@ class Application {
   GLuint model_loc_;
   GLuint model_it_loc_;
   GLuint view_projection_loc_;
+  GLuint world_camera_position_loc_;
   std::vector<MeshEntity> mesh_entities_;
   std::unique_ptr<Camera> camera_;
 
