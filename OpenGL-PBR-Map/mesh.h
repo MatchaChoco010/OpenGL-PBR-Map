@@ -78,6 +78,7 @@ class Mesh {
   GLuint vertices_vbo_;
   GLuint normals_vbo_;
   GLuint uvs_vbo_;
+  GLuint tangents_vbo_;
   GLuint vao_;
 
   /**
@@ -86,6 +87,19 @@ class Mesh {
    * コンストラクタで確保したVAOとVBOを開放します。
    */
   void Release();
+
+  /**
+   * @brief Tangentsを計算する
+   * @param vertices 頂点座標
+   * @param uvs UV
+   * @return 計算されたタンジェント
+   *
+   * verticesとuvsからテクスチャ座標系でのタンジェントを計算し返します。
+   * vertices、uvs及び返り値のtangentsは、前から順に3頂点で一つの面を構成します。
+   */
+  const std::vector<glm::vec3> CalculateTangents(
+      const std::vector<glm::vec3>& vertices,
+      const std::vector<glm::vec2>& uvs);
 
   /**
    * @brief 文字列を指定した区切り文字で分割する静的メンバ関数

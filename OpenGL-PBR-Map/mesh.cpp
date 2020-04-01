@@ -11,6 +11,8 @@ Mesh::Mesh(const std::vector<glm::vec3>& vertices,
            const std::vector<glm::vec3>& normals,
            const std::vector<glm::vec2>& uvs)
     : size_(vertices.size()) {
+  auto tangents = CalculateTangents(vertices, uvs);
+
   glGenVertexArrays(1, &vao_);
   glBindVertexArray(vao_);
 
@@ -23,8 +25,8 @@ Mesh::Mesh(const std::vector<glm::vec3>& vertices,
 
   glGenBuffers(1, &normals_vbo_);
   glBindBuffer(GL_ARRAY_BUFFER, normals_vbo_);
-  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0],
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3),
+               &normals[0], GL_STATIC_DRAW);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(0));
 
@@ -34,6 +36,13 @@ Mesh::Mesh(const std::vector<glm::vec3>& vertices,
                GL_STATIC_DRAW);
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(0));
+
+  glGenBuffers(1, &tangents_vbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, tangents_vbo_);
+  glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3),
+               &tangents[0], GL_STATIC_DRAW);
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(0));
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
@@ -104,7 +113,7 @@ std::shared_ptr<Mesh> Mesh::LoadObjMesh(const std::string file) {
                                 std::stof(col[3]));
     } else if (col[0] == "vn") {
       tmp_normals.emplace_back(std::stof(col[1]), std::stof(col[2]),
-                               std::stof(col[3]));
+                              std::stof(col[3]));
     } else if (col[0] == "vt") {
       tmp_uvs.emplace_back(std::stof(col[1]), std::stof(col[2]));
     } else if (col[0] == "f") {
@@ -143,6 +152,36 @@ void Mesh::Release() {
   glDeleteVertexArrays(1, &vao_);
   glDeleteBuffers(1, &vertices_vbo_);
   glDeleteBuffers(1, &normals_vbo_);
+}
+
+const std::vector<glm::vec3> Mesh::CalculateTangents(
+    const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs) {
+  std::vector<glm::vec3> tangents;
+
+  for (int i = 0; i < vertices.size(); i += 3) {
+    auto& v0 = vertices[i + 0];
+    auto& v1 = vertices[i + 1];
+    auto& v2 = vertices[i + 2];
+
+    auto& uv0 = uvs[i + 0];
+    auto& uv1 = uvs[i + 1];
+    auto& uv2 = uvs[i + 2];
+
+    auto delta_pos1 = v1 - v0;
+    auto delta_pos2 = v2 - v0;
+
+    auto delta_uv1 = uv1 - uv0;
+    auto delta_uv2 = uv2 - uv0;
+
+    float r = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+    auto tangent = (delta_pos1 * delta_uv2.y - delta_pos2 * delta_uv1.y) * r;
+
+    tangents.emplace_back(tangent);
+    tangents.emplace_back(tangent);
+    tangents.emplace_back(tangent);
+  }
+
+  return tangents;
 }
 
 }  // namespace game

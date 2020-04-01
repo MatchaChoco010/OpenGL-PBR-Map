@@ -147,11 +147,11 @@ bool Application::Init() {
       glGetUniformLocation(program_, "worldCameraPosition");
 
   // Meshの読み込み
-  auto mesh = Mesh::LoadObjMesh("monkey.obj");
+  auto mesh = Mesh::LoadObjMesh("sphere.obj");
 
   // Materialの作成
-  auto material =
-      std::make_shared<Material>(Texture("monkey_albedo.png", true));
+  auto material = std::make_shared<Material>(Texture("albedo.png", true),
+                                             Texture("normal.png", false));
 
   // MeshEntityの作成
   mesh_entities_.emplace_back(mesh, material, glm::vec3(0.0f, 0.0f, 0.0f),
@@ -163,7 +163,7 @@ bool Application::Init() {
 
   // Cameraの作成
   camera_ = std::make_unique<Camera>(
-      glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f), glm::radians(60.0f),
+      glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f), glm::radians(60.0f),
       static_cast<float>(width) / height, 0.1f, 100.0f);
 
   return true;
@@ -242,6 +242,9 @@ void Application::Update(const double delta_time) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,
                   mesh_entity.material_->albedo_map_.GetTextureId());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D,
+                  mesh_entity.material_->normal_map_.GetTextureId());
 
     mesh_entity.mesh_->Draw();
   }
