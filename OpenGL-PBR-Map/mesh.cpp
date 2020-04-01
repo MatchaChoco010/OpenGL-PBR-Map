@@ -8,7 +8,8 @@ void Mesh::Draw() const {
 }
 
 Mesh::Mesh(const std::vector<glm::vec3>& vertices,
-           const std::vector<glm::vec3>& normals)
+           const std::vector<glm::vec3>& normals,
+           const std::vector<glm::vec2>& uvs)
     : size_(vertices.size()) {
   glGenVertexArrays(1, &vao_);
   glBindVertexArray(vao_);
@@ -22,10 +23,17 @@ Mesh::Mesh(const std::vector<glm::vec3>& vertices,
 
   glGenBuffers(1, &normals_vbo_);
   glBindBuffer(GL_ARRAY_BUFFER, normals_vbo_);
-  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3),
-               &normals[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0],
+               GL_STATIC_DRAW);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(0));
+
+  glGenBuffers(1, &uvs_vbo_);
+  glBindBuffer(GL_ARRAY_BUFFER, uvs_vbo_);
+  glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0],
+               GL_STATIC_DRAW);
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(0));
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
@@ -74,11 +82,13 @@ std::vector<std::string> Mesh::SplitString(const std::string& s, char delim) {
 }
 
 std::shared_ptr<Mesh> Mesh::LoadObjMesh(const std::string file) {
-  std::vector<unsigned int> vertex_indices, normal_indices;
+  std::vector<unsigned int> vertex_indices, normal_indices, uv_indices;
   std::vector<glm::vec3> tmp_vertices;
   std::vector<glm::vec3> tmp_normals;
+  std::vector<glm::vec2> tmp_uvs;
   std::vector<glm::vec3> vertices;
   std::vector<glm::vec3> normals;
+  std::vector<glm::vec2> uvs;
 
   std::ifstream ifs(file);
   std::string line;
@@ -94,7 +104,9 @@ std::shared_ptr<Mesh> Mesh::LoadObjMesh(const std::string file) {
                                 std::stof(col[3]));
     } else if (col[0] == "vn") {
       tmp_normals.emplace_back(std::stof(col[1]), std::stof(col[2]),
-                              std::stof(col[3]));
+                               std::stof(col[3]));
+    } else if (col[0] == "vt") {
+      tmp_uvs.emplace_back(std::stof(col[1]), std::stof(col[2]));
     } else if (col[0] == "f") {
       auto v1 = SplitString(col[1], '/');
       auto v2 = SplitString(col[2], '/');
@@ -105,6 +117,9 @@ std::shared_ptr<Mesh> Mesh::LoadObjMesh(const std::string file) {
       normal_indices.emplace_back(std::stoi(v1[2]));
       normal_indices.emplace_back(std::stoi(v2[2]));
       normal_indices.emplace_back(std::stoi(v3[2]));
+      uv_indices.emplace_back(std::stoi(v1[1]));
+      uv_indices.emplace_back(std::stoi(v2[1]));
+      uv_indices.emplace_back(std::stoi(v3[1]));
     }
   }
 
@@ -116,8 +131,12 @@ std::shared_ptr<Mesh> Mesh::LoadObjMesh(const std::string file) {
     unsigned int normal_index = normal_indices[i];
     normals.emplace_back(tmp_normals[normal_index - 1]);
   }
+  for (unsigned int i = 0; i < uv_indices.size(); i++) {
+    unsigned int uv_index = uv_indices[i];
+    uvs.emplace_back(tmp_uvs[uv_index - 1]);
+  }
 
-  return std::make_shared<Mesh>(vertices, normals);
+  return std::make_shared<Mesh>(vertices, normals, uvs);
 }
 
 void Mesh::Release() {

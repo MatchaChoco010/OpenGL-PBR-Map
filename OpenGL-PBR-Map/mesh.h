@@ -30,12 +30,14 @@ class Mesh {
    * @brief コンストラクタ
    * @param vertices 頂点位置の列
    * @param normals 頂点法線の列
+   * @param uvs UV座標の列
    *
    * ジオメトリを構築し、VBOとVAOを構築します。
    * 各種頂点情報は前から順に3つずつで一つの面を構成していきます。
    */
   Mesh(const std::vector<glm::vec3>& vertices,
-       const std::vector<glm::vec3>& normals);
+       const std::vector<glm::vec3>& normals,
+       const std::vector<glm::vec2>& uvs);
 
   /**
    * @brief デストラクタ
@@ -75,6 +77,7 @@ class Mesh {
   GLuint size_;
   GLuint vertices_vbo_;
   GLuint normals_vbo_;
+  GLuint uvs_vbo_;
   GLuint vao_;
 
   /**

@@ -149,12 +149,16 @@ bool Application::Init() {
   // Meshの読み込み
   auto mesh = Mesh::LoadObjMesh("monkey.obj");
 
+  // Materialの作成
+  auto material =
+      std::make_shared<Material>(Texture("monkey_albedo.png", true));
+
   // MeshEntityの作成
-  mesh_entities_.emplace_back(mesh, glm::vec3(0.0f, 0.0f, 0.0f),
+  mesh_entities_.emplace_back(mesh, material, glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f), glm::vec3(1.0f));
-  mesh_entities_.emplace_back(mesh, glm::vec3(2.0f, 0.0f, 0.0f),
+  mesh_entities_.emplace_back(mesh, material, glm::vec3(2.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f), glm::vec3(1.0f));
-  mesh_entities_.emplace_back(mesh, glm::vec3(-2.0f, 0.0f, 0.0f),
+  mesh_entities_.emplace_back(mesh, material, glm::vec3(-2.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f), glm::vec3(1.0f));
 
   // Cameraの作成
@@ -234,6 +238,10 @@ void Application::Update(const double delta_time) {
 
     glUniformMatrix4fv(model_loc_, 1, GL_FALSE, &model[0][0]);
     glUniformMatrix4fv(model_it_loc_, 1, GL_FALSE, &model_it[0][0]);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,
+                  mesh_entity.material_->albedo_map_.GetTextureId());
 
     mesh_entity.mesh_->Draw();
   }

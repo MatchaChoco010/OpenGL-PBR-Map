@@ -2,20 +2,24 @@
 
 in vec3 vWorldPosition;
 in vec3 vWorldNormal;
+in vec2 vUv;
 
 layout (location = 0) out vec4 fragment;
 
 uniform vec3 worldCameraPosition;
 
+layout (binding = 0) uniform sampler2D albedoMap;
+
 const vec3 worldLightPosition = vec3(0.0, 5.0, 2.0);
 
 const vec3 lightColor = vec3(1.0);
 
-const vec3 Kdiff = vec3(0.8, 0.5, 0.2);
 const vec3 Kspec = vec3(1.0);
 const float shininess = 50;
 
 void main() {
+  vec3 Kdiff = texture(albedoMap, vUv).rgb;
+
   vec3 L = normalize(worldLightPosition - vWorldPosition);
   vec3 V = normalize(worldCameraPosition - vWorldPosition);
   vec3 N = normalize(vWorldNormal);

@@ -5,6 +5,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <memory>
 
+#include "material.h"
 #include "mesh.h"
 
 namespace game {
@@ -15,6 +16,7 @@ namespace game {
 class MeshEntity {
  public:
   const std::shared_ptr<const Mesh> mesh_;
+  const std::shared_ptr<const Material> material_;
 
   /**
    * @brief シーン上の位置を返す
@@ -77,8 +79,10 @@ class MeshEntity {
    *
    * オイラー角はYXZの順です。
    */
-  MeshEntity(const std::shared_ptr<const Mesh> mesh, const glm::vec3 position,
-             const glm::vec3 rotation, const glm::vec3 scale);
+  MeshEntity(const std::shared_ptr<const Mesh> mesh,
+             const std::shared_ptr<const Material> material,
+             const glm::vec3 position, const glm::vec3 rotation,
+             const glm::vec3 scale);
 
  private:
   glm::vec3 position_;

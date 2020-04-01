@@ -74,7 +74,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)vendors\glfw\lib-vc2019\;$(SolutionDir)vendors\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)vendors\glfw\lib-vc2019\;$(SolutionDir)vendors\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -149,14 +149,18 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="material.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="mesh_entity.cpp" />
+    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="mesh_entity.h" />
+    <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

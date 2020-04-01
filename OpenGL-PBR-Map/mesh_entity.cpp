@@ -26,9 +26,11 @@ void MeshEntity::SetScale(const glm::vec3 scale) {
 const glm::mat4 MeshEntity::GetModelMatrix() const { return model_matrix_; }
 
 MeshEntity::MeshEntity(const std::shared_ptr<const Mesh> mesh,
+                       const std::shared_ptr<const Material> material,
                        const glm::vec3 position, const glm::vec3 rotation,
                        const glm::vec3 scale)
     : mesh_(mesh),
+      material_(material),
       position_(position),
       rotation_(rotation),
       scale_(scale),
