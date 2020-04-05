@@ -145,13 +145,18 @@ bool Application::Init() {
   view_projection_loc_ = glGetUniformLocation(program_, "ViewProjection");
   world_camera_position_loc_ =
       glGetUniformLocation(program_, "worldCameraPosition");
+  emissive_intensity_loc_ = glGetUniformLocation(program_, "emissiveIntensity");
 
   // Meshの読み込み
-  auto mesh = Mesh::LoadObjMesh("sphere.obj");
+  auto mesh = Mesh::LoadObjMesh("monkey.obj");
 
   // Materialの作成
-  auto material = std::make_shared<Material>(Texture("albedo.png", true),
-                                             Texture("normal.png", false));
+  auto material = std::make_shared<Material>(
+      Texture("monkey_BaseColor.png", true),
+      Texture("monkey_Metallic.png", false),
+      Texture("monkey_Roughness.png", false),
+      Texture("monkey_Normal.png", false), Texture("monkey_Emissive.png", true),
+      10.0f);
 
   // MeshEntityの作成
   mesh_entities_.emplace_back(mesh, material, glm::vec3(0.0f, 0.0f, 0.0f),
@@ -238,13 +243,24 @@ void Application::Update(const double delta_time) {
 
     glUniformMatrix4fv(model_loc_, 1, GL_FALSE, &model[0][0]);
     glUniformMatrix4fv(model_it_loc_, 1, GL_FALSE, &model_it[0][0]);
+    glUniform1f(emissive_intensity_loc_,
+                mesh_entity.material_->emissive_intensity_);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,
                   mesh_entity.material_->albedo_map_.GetTextureId());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D,
+                  mesh_entity.material_->metallic_map_.GetTextureId());
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D,
+                  mesh_entity.material_->roughness_map_.GetTextureId());
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D,
                   mesh_entity.material_->normal_map_.GetTextureId());
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D,
+                  mesh_entity.material_->emissive_map_.GetTextureId());
 
     mesh_entity.mesh_->Draw();
   }
