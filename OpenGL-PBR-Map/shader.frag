@@ -9,6 +9,7 @@ layout (location = 0) out vec4 fragment;
 
 uniform vec3 worldCameraPosition;
 uniform float emissiveIntensity;
+uniform float anisotropic;
 
 layout (binding = 0) uniform sampler2D albedoMap;
 layout (binding = 1) uniform sampler2D metallicMap;
@@ -66,57 +67,156 @@ vec3 GetNormal() {
 
 
 // BRDF ####################################################################
-vec3 NormalizedLambert(vec3 diffuseColor) {
-  return diffuseColor / PI;
+// vec3 NormalizedLambert(vec3 diffuseColor) {
+//   return diffuseColor / PI;
+// }
+
+// vec3 F_Schlick(vec3 F0, vec3 H, vec3 V) {
+//   return (F0 + (1.0 - F0) * pow(1.0 - max(dot(V, H), 0), 5.0));
+// }
+
+// float D_GGX(float a, float NoH) {
+//   float a2 = a * a;
+//   float NoH2 = NoH * NoH;
+//   float d = NoH2 * (a2 - 1.0) + 1.0;
+//   return a2 / (PI * d * d);
+// }
+
+// float G_SchlickGGX(float a, float NoV) {
+//   float EPSILON = 0.001;
+//   float k = a * a / 2 + EPSILON;
+//   float up = NoV;
+//   float down = NoV * (1 - k) + k;
+//   return up / down;
+// }
+
+// float G_Smith(float a, float NoV, float NoL) {
+//   float ggx0 = G_SchlickGGX(1, NoV);
+//   float ggx1 = G_SchlickGGX(1, NoL);
+//   return ggx0 * ggx1;
+// }
+
+// vec3 BRDF(vec3 albedo, float metallic, float roughness, vec3 N, vec3 V, vec3 L, vec3 H) {
+//   float EPSILON = 0.001;
+//   vec3 F0 = mix(vec3(0.04), albedo, metallic);
+//   float NoH = max(dot(N, H), 0);
+//   float NoV = max(dot(N, V), 0);
+//   float NoL = max(dot(N, L), 0);
+//   float a = roughness * roughness;
+
+//   // specular
+//   vec3 F = F_Schlick(F0, H, V);
+//   float D = D_GGX(a, NoH);
+//   float G = G_Smith(a, NoV, NoL);
+//   vec3 up = F * D * G;
+//   float down = max(4.0 * NoV * NoL, EPSILON);
+//   vec3 specular = up / down;
+
+//   // diffuse
+//   vec3 diffuse = NormalizedLambert(albedo);
+
+//   vec3 kD = vec3(1.0) - F;
+//   kD *= 1.0 - metallic;
+//   return kD * diffuse + specular;
+// }
+// #########################################################################
+
+
+// Disney BRDF #############################################################
+// # Copyright Disney Enterprises, Inc.  All rights reserved.
+// #
+// # Licensed under the Apache License, Version 2.0 (the "License");
+// # you may not use this file except in compliance with the License
+// # and the following modification to it: Section 6 Trademarks.
+// # deleted and replaced with:
+// #
+// # 6. Trademarks. This License does not grant permission to use the
+// # trade names, trademarks, service marks, or product names of the
+// # Licensor and its affiliates, except as required for reproducing
+// # the content of the NOTICE file.
+// #
+// # You may obtain a copy of the License at
+// # http://www.apache.org/licenses/LICENSE-2.0
+float SchlickFresnel(float cosTheta)
+{
+  return pow(clamp((1 - cosTheta), 0, 1), 5.0);
 }
 
-vec3 F_Schlick(vec3 F0, vec3 H, vec3 V) {
-  return (F0 + (1.0 - F0) * pow(1.0 - max(dot(V, H), 0), 5.0));
-}
-
-float D_GGX(float a, float NoH) {
+float D_GTR1(float NdotH, float a)
+{
   float a2 = a * a;
-  float NoH2 = NoH * NoH;
-  float d = NoH2 * (a2 - 1.0) + 1.0;
-  return a2 / (PI * d * d);
+  float tmp = 1 + (a2 - 1) * NdotH * NdotH;
+  return (a2 - 1) / (PI * log(a2) * tmp);
 }
 
-float G_SchlickGGX(float a, float NoV) {
-  float EPSILON = 0.001;
-  float k = a * a / 2 + EPSILON;
-  float up = NoV;
-  float down = NoV * (1 - k) + k;
-  return up / down;
+float D_GTR2aniso(float NdotH, float HdotX, float HdotY, float ax, float ay)
+{
+  float tmp = (HdotX * HdotX) / (ax * ax) + (HdotY * HdotY) / (ay * ay) + NdotH * NdotH;
+  return 1 / (PI * ax * ay * tmp * tmp);
 }
 
-float G_Smith(float a, float NoV, float NoL) {
-  float ggx0 = G_SchlickGGX(1, NoV);
-  float ggx1 = G_SchlickGGX(1, NoL);
-  return ggx0 * ggx1;
+float G_GGX(float NdotV, float a)
+{
+  float a2 = a * a;
+  float down = NdotV + sqrt(a2 + NdotV * NdotV - a2 * NdotV * NdotV);
+  return 1 / down;
 }
 
-vec3 BRDF(vec3 albedo, float metallic, float roughness, vec3 N, vec3 V, vec3 L, vec3 H) {
-  float EPSILON = 0.001;
-  vec3 F0 = mix(vec3(0.04), albedo, metallic);
-  float NoH = max(dot(N, H), 0);
-  float NoV = max(dot(N, V), 0);
-  float NoL = max(dot(N, L), 0);
-  float a = roughness * roughness;
+float G_GGXaniso(float NdotV, float VdotX, float VdotY, float ax, float ay)
+{
+  float tmp = VdotX * VdotX * ax * ax + VdotY * VdotY * ay * ay + NdotV * NdotV;
+  float down = NdotV + sqrt(tmp);
+  return 1 / down;
+}
 
-  // specular
-  vec3 F = F_Schlick(F0, H, V);
-  float D = D_GGX(a, NoH);
-  float G = G_Smith(a, NoV, NoL);
-  vec3 up = F * D * G;
-  float down = max(4.0 * NoV * NoL, EPSILON);
-  vec3 specular = up / down;
+vec3 DisneyBRDF(vec3 L, vec3 V, vec3 N, vec3 H, vec3 X, vec3 Y, vec3 baseColor, float subsurface, float metallic, float specular, float specularTint, float roughness, float anisotropic, float sheen, float sheenTint, float clearcoat, float clearcoatGloss)
+{
+  float NdotL = dot(N, L);
+  float NdotV = dot(N, V);
+  if (NdotL < 0 || NdotV < 0) return vec3(0);
+
+  float NdotH = dot(N, H);
+  float LdotH = dot(L, H);
+
+  float luminance = 0.3 * baseColor.r + 0.6 * baseColor.g + 0.1 * baseColor.b;
+  vec3 C_tint = luminance > 0 ? baseColor / luminance : vec3(1);
+  vec3 C_spec = mix(specular * 0.08 * mix(vec3(1), C_tint, specularTint), baseColor, metallic);
+  vec3 C_sheen = mix(vec3(1), C_tint, sheenTint);
 
   // diffuse
-  vec3 diffuse = NormalizedLambert(albedo);
+  float F_i = SchlickFresnel(NdotL);
+  float F_o = SchlickFresnel(NdotV);
+  float F_d90 = 0.5 + 2 * LdotH * LdotH * roughness;
+  float F_d = mix(1.0, F_d90, F_i) * mix(1.0, F_d90, F_o);
 
-  vec3 kD = vec3(1.0) - F;
-  kD *= 1.0 - metallic;
-  return kD * diffuse + specular;
+  float F_ss90 = LdotH * LdotH * roughness;
+  float F_ss = mix(1.0, F_ss90, F_i) * mix(1.0, F_ss90, F_o);
+  float ss = 1.25 * (F_ss * (1 / (NdotL + NdotV) - 0.5) + 0.5);
+
+  float FH = SchlickFresnel(LdotH);
+  vec3 F_sheen = FH * sheen * C_sheen;
+
+  vec3 BRDFdiffuse = ((1 / PI) * mix(F_d, ss, subsurface) * baseColor + F_sheen) * (1 - metallic);
+
+  // specular
+  float aspect = sqrt(1 - anisotropic * 0.9);
+  float roughness2 = roughness * roughness;
+  float a_x = max(0.001, roughness2 / aspect);
+  float a_y = max(0.001, roughness2 * aspect);
+  float D_s = D_GTR2aniso(NdotH, dot(H, X), dot(H, Y), a_x, a_y);
+  vec3 F_s = mix(C_spec, vec3(1), FH);
+  float G_s = G_GGXaniso(NdotL, dot(L, X), dot(L, Y), a_x, a_y) * G_GGXaniso(NdotV, dot(V, X), dot(V, Y), a_x, a_y);
+
+  vec3 BRDFspecular = G_s * F_s * D_s;
+
+  // clearcoat
+  float D_r = D_GTR1(NdotH, mix(0.1, 0.001, clearcoatGloss));
+  float F_r = mix(0.04, 1.0, FH);
+  float G_r = G_GGX(NdotL, 0.25) * G_GGX(NdotV, 0.25);
+
+  vec3 BRDFclearcoat = vec3(0.25 * clearcoat * G_r * F_r * D_r);
+
+  return BRDFdiffuse + BRDFspecular + BRDFclearcoat;
 }
 // #########################################################################
 
@@ -658,6 +758,19 @@ void main() {
   vec3 N = GetNormal();
   vec3 V = normalize(worldCameraPosition - vWorldPosition);
 
+  vec3 tangent = normalize(vWorldTangent);
+  vec3 bitangent = normalize(cross(N, tangent));
+  tangent = normalize(cross(bitangent, N));
+
+  float subsurface = 0.0;
+  float specular = 0.5;
+  float specularTint = 0.0;
+  float sheen = 0.0;
+  float sheenTint = 0.5;
+  float clearcoat = 0.0;
+  // float clearcoat = 1.0;
+  float clearcoatGloss = 1.0;
+
   for (int i = 0; i < 3; i++) {
     vec3 L = normalize(worldLightPositions[i] - vWorldPosition);
     vec3 H = normalize(L + V);
@@ -665,7 +778,8 @@ void main() {
       DistanceAttenuation(distance(worldLightPositions[i], vWorldPosition), 20.0);
     vec3 irradiance =
       lightIntensities[i] / (4.0 * PI) * attenuation * sRGBToACES(lightColors[i]) * max(dot(N, L), 0);
-    color += BRDF(albedo, metallic, roughness, N, V, L, H) * irradiance;
+    // color += BRDF(albedo, metallic, roughness, N, V, L, H) * irradiance;
+    color += DisneyBRDF(L, V, N, H, tangent, bitangent, albedo, subsurface, metallic, specular, specularTint, roughness, anisotropic, sheen, sheenTint, clearcoat, clearcoatGloss) * irradiance;
   }
 
   color *= exposure;

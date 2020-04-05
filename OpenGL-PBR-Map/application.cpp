@@ -146,24 +146,25 @@ bool Application::Init() {
   world_camera_position_loc_ =
       glGetUniformLocation(program_, "worldCameraPosition");
   emissive_intensity_loc_ = glGetUniformLocation(program_, "emissiveIntensity");
+  anisotropic_loc_ = glGetUniformLocation(program_, "anisotropic");
 
   // Meshの読み込み
-  auto mesh = Mesh::LoadObjMesh("monkey.obj");
+  auto mesh = Mesh::LoadObjMesh("sphere.obj");
 
   // Materialの作成
   auto material = std::make_shared<Material>(
-      Texture("monkey_BaseColor.png", true),
-      Texture("monkey_Metallic.png", false),
-      Texture("monkey_Roughness.png", false),
-      Texture("monkey_Normal.png", false), Texture("monkey_Emissive.png", true),
-      10.0f);
+      Texture("sphere_BaseColor.png", true),
+      Texture("sphere_Metallic.png", false),
+      Texture("sphere_Roughness.png", false),
+      Texture("sphere_Normal.png", false), Texture("sphere_Emissive.png", true),
+      0.0f);
 
   // MeshEntityの作成
+  mesh_entities_.emplace_back(mesh, material, glm::vec3(-2.0f, 0.0f, 0.0f),
+                              glm::vec3(0.0f), glm::vec3(1.0f));
   mesh_entities_.emplace_back(mesh, material, glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f), glm::vec3(1.0f));
   mesh_entities_.emplace_back(mesh, material, glm::vec3(2.0f, 0.0f, 0.0f),
-                              glm::vec3(0.0f), glm::vec3(1.0f));
-  mesh_entities_.emplace_back(mesh, material, glm::vec3(-2.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f), glm::vec3(1.0f));
 
   // Cameraの作成
@@ -237,6 +238,7 @@ void Application::Update(const double delta_time) {
   glUniformMatrix4fv(view_projection_loc_, 1, GL_FALSE, &view_projection[0][0]);
   glUniform3fv(world_camera_position_loc_, 1, &camera_position[0]);
 
+  GLfloat anisotropic = 0.0f;
   for (auto&& mesh_entity : mesh_entities_) {
     auto model = mesh_entity.GetModelMatrix();
     auto model_it = glm::inverseTranspose(model);
@@ -245,6 +247,8 @@ void Application::Update(const double delta_time) {
     glUniformMatrix4fv(model_it_loc_, 1, GL_FALSE, &model_it[0][0]);
     glUniform1f(emissive_intensity_loc_,
                 mesh_entity.material_->emissive_intensity_);
+    glUniform1f(anisotropic_loc_, anisotropic);
+    anisotropic += 0.5f;
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,

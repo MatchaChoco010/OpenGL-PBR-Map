@@ -45,6 +45,7 @@ class Application {
   GLuint view_projection_loc_;
   GLuint world_camera_position_loc_;
   GLuint emissive_intensity_loc_;
+  GLuint anisotropic_loc_;
   std::vector<MeshEntity> mesh_entities_;
   std::unique_ptr<Camera> camera_;
 
