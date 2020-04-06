@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "camera.h"
+#include "directional_light.h"
 #include "mesh.h"
 #include "mesh_entity.h"
 
@@ -15,6 +16,7 @@ class Scene {
  public:
   std::unique_ptr<Camera> camera_;
   std::vector<MeshEntity> mesh_entities_;
+  std::unique_ptr<DirectionalLight> directional_light_;
 
   /**
    * @brief テスト用のシーンを作成する

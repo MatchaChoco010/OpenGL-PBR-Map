@@ -48,9 +48,6 @@
     <ClCompile Include="texture.cpp">
       <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
-    <ClCompile Include="scene.cpp">
-      <Filter>ヘッダー ファイル\scene</Filter>
-    </ClCompile>
     <ClCompile Include="scene_renderer.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
@@ -58,6 +55,15 @@
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
     <ClCompile Include="create_program.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="directional_light.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="directional_light_pass.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,9 +86,6 @@
     <ClInclude Include="mesh_entity.h">
       <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>ソース ファイル\scene</Filter>
-    </ClInclude>
     <ClInclude Include="scene_renderer.h">
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
@@ -91,6 +94,15 @@
     </ClInclude>
     <ClInclude Include="create_program.h">
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="directional_light_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="directional_light.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,6 +4,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <array>
+
+#include "directional_light_pass.h"
 #include "geometry_pass.h"
 #include "scene.h"
 
@@ -47,18 +50,49 @@ class SceneRenderer {
   const GLuint width_;
   const GLuint height_;
 
+  const GLuint fullscreen_mesh_vao_;
+  const GLuint fullscreen_mesh_vertices_vbo_;
+  const GLuint fullscreen_mesh_uvs_vbo_;
+
   const GLuint gbuffer0_;       // rgb: albedo, a: metallic
   const GLuint gbuffer1_;       // rgb: emissive, a: depth
   const GLuint gbuffer2_;       // rgb: normal, a: roughenss
   const GLuint gbuffer_depth_;  // depth buffer
   const GLuint gbuffer_fbo_;
 
+  const GLuint hdr_color_buffer_;
+  const GLuint hdr_depth_buffer_;
+  const GLuint hdr_fbo_;
+
   GeometryPass geometry_pass_;
+  DirectionalLightPass directional_light_pass_;
 
   /**
    * @brief リソースの開放をする
    */
   void Release();
+
+  /**
+   * @brief スクリーンを覆うメッシュのVAOを作成する
+   * @return 作成したVAOのID
+   */
+  static const GLuint CreateFullscreenMeshVao();
+
+  /**
+   * @brief スクリーンを覆うメッシュの頂点座標のVBOを作成する
+   * @param fullscreen_mesh_vao スクリーンを覆うメッシュのVAOのID
+   * @return 作成したVBOのID
+   */
+  static const GLuint CreateFullscreenMeshVerticesVbo(
+      const GLuint fullscreen_mesh_vao);
+
+  /**
+   * @brief スクリーンを覆うメッシュのUVのVBOを作成する
+   * @param fullscreen_mesh_vao スクリーンを覆うメッシュのVAOのID
+   * @return 作成したVBOのID
+   */
+  static const GLuint CreateFullscreenMeshUvsVbo(
+      const GLuint fullscreen_mesh_vao);
 
   /**
    * @brief GBuffer0のテクスチャを作成する
@@ -105,6 +139,27 @@ class SceneRenderer {
                                        const GLuint gbuffer1,
                                        const GLuint gbuffer2,
                                        const GLuint gbuffer_depth);
+
+  /**
+   * @brief HDRカラーバッファのテクスチャを作成する
+   * @return 作成したHDRカラーバッファのテクスチャのID
+   */
+  static const GLuint CreateHdrColorBuffer(const GLuint width,
+                                           const GLuint height);
+
+  /**
+   * @brief HDRバッファのデプスバッファテクスチャを作成する
+   * @return 作成したHDRデプスバッファテクスチャのID
+   */
+  static const GLuint CreateHdrDepthBuffer(const GLuint width,
+                                           const GLuint height);
+
+  /**
+   * @brief HDRバッファのFBOを作成する
+   * @return 作成したHDRバッファのFBOのID
+   */
+  static const GLuint CreateHdrFbo(const GLuint hdr_color_buffer,
+                                   const GLuint hdr_depth_buffer);
 };
 
 }  // namespace game

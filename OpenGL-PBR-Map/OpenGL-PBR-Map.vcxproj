@@ -149,6 +149,8 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="create_program.cpp" />
+    <ClCompile Include="directional_light.cpp" />
+    <ClCompile Include="directional_light_pass.cpp" />
     <ClCompile Include="geometry_pass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
@@ -162,6 +164,8 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="create_program.h" />
+    <ClInclude Include="directional_light.h" />
+    <ClInclude Include="directional_light_pass.h" />
     <ClInclude Include="geometry_pass.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
