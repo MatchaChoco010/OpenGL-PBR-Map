@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\scene">
+      <UniqueIdentifier>{c3600a6b-8b0b-4ffb-b3ef-2f506e5d6175}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\scene">
+      <UniqueIdentifier>{c8968b33-6161-4748-8921-3b5c5b76f208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\scene_renderer">
+      <UniqueIdentifier>{4bcca7d6-b64c-4c94-873c-384989ad5856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\scene_renderer">
+      <UniqueIdentifier>{5f593f2a-7fff-4908-a571-8f33552e10fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,40 +33,64 @@
     <ClCompile Include="application.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="mesh_entity.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\scene</Filter>
     </ClCompile>
     <ClCompile Include="material.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_entity.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_renderer.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="create_program.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh_entity.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="material.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_entity.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_renderer.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="create_program.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

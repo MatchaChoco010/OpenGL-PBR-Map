@@ -16,8 +16,14 @@ void Camera::SetRotation(const glm::vec3 rotation) {
   RecaluculateViewMatirx();
 }
 
+const GLfloat Camera::GetNear() const { return near_; }
+
+const GLfloat Camera::GetFar() const { return far_; }
+
 void Camera::Perspective(const GLfloat fovy, const GLfloat aspect,
                          const GLfloat near, const GLfloat far) {
+  near_ = near;
+  far_ = far;
   projection_matrix_ = glm::perspective(fovy, aspect, near, far);
 }
 
@@ -34,7 +40,9 @@ const glm::mat4 Camera::GetProjectionMatrix() const {
 Camera::Camera(const glm::vec3 position, const glm::vec3 rotation,
                const GLfloat fovy, const GLfloat aspect, const GLfloat near,
                const GLfloat far)
-    : position_(position),
+    : near_(near),
+      far_(far),
+      position_(position),
       rotation_(rotation),
       view_matrix_(),
       projection_matrix_(glm::perspective(fovy, aspect, near, far)) {

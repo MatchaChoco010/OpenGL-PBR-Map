@@ -148,18 +148,26 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="create_program.cpp" />
+    <ClCompile Include="geometry_pass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="mesh_entity.cpp" />
+    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="create_program.h" />
+    <ClInclude Include="geometry_pass.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="mesh_entity.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="scene_renderer.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

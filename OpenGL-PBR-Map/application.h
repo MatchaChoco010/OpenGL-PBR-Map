@@ -4,15 +4,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <fstream>
-#include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/glm.hpp>
 #include <iostream>
+#include <memory>
 #include <string>
 
-#include "camera.h"
-#include "mesh.h"
-#include "mesh_entity.h"
+#include "scene.h"
+#include "scene_renderer.h"
 
 namespace game {
 
@@ -39,15 +38,8 @@ class Application {
 
  private:
   GLFWwindow* window_;
-  GLuint program_;
-  GLuint model_loc_;
-  GLuint model_it_loc_;
-  GLuint view_projection_loc_;
-  GLuint world_camera_position_loc_;
-  GLuint emissive_intensity_loc_;
-  GLuint anisotropic_loc_;
-  std::vector<MeshEntity> mesh_entities_;
-  std::unique_ptr<Camera> camera_;
+  std::unique_ptr<Scene> scene_;
+  std::unique_ptr<SceneRenderer> scene_renderer_;
 
   /**
    * @brief 初期化処理

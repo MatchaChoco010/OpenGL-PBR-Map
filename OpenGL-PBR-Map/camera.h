@@ -46,6 +46,18 @@ class Camera {
   void SetRotation(const glm::vec3 rotation);
 
   /**
+   * @brief カメラのnearの値を取得する
+   * @return カメラのnearの値
+   */
+  const GLfloat GetNear() const;
+
+  /**
+   * @brief カメラのfarの値を取得する
+   * @return カメラのfarの値
+   */
+  const GLfloat GetFar() const;
+
+  /**
    * @brief カメラのProjection行列のパラメータを設定する
    * @param fovy fovyの値（radians）
    * @param aspect aspectの値
@@ -91,6 +103,8 @@ class Camera {
          const GLfloat aspect, const GLfloat near, const GLfloat far);
 
  private:
+  GLfloat near_;
+  GLfloat far_;
   glm::vec3 position_;
   glm::vec3 rotation_;
   glm::mat4 view_matrix_;
