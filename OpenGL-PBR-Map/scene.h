@@ -9,6 +9,7 @@
 #include "directional_light.h"
 #include "mesh.h"
 #include "mesh_entity.h"
+#include "point_light.h"
 
 namespace game {
 
@@ -17,6 +18,7 @@ class Scene {
   std::unique_ptr<Camera> camera_;
   std::vector<MeshEntity> mesh_entities_;
   std::unique_ptr<DirectionalLight> directional_light_;
+  std::vector<PointLight> point_lights_;
 
   /**
    * @brief テスト用のシーンを作成する

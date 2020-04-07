@@ -9,6 +9,7 @@
 #include "directional_light_pass.h"
 #include "exposure_pass.h"
 #include "geometry_pass.h"
+#include "point_light_pass.h"
 #include "scene.h"
 #include "tonemapping_pass.h"
 
@@ -56,6 +57,10 @@ class SceneRenderer {
   const GLuint fullscreen_mesh_vertices_vbo_;
   const GLuint fullscreen_mesh_uvs_vbo_;
 
+  const GLuint sphere_vao_;
+  const GLuint sphere_vertices_vbo_;
+  const GLuint sphere_indices_ibo_;
+
   const GLuint gbuffer0_;       // rgb: albedo, a: metallic
   const GLuint gbuffer1_;       // rgb: emissive, a: depth
   const GLuint gbuffer2_;       // rgb: normal, a: roughenss
@@ -71,6 +76,7 @@ class SceneRenderer {
 
   GeometryPass geometry_pass_;
   DirectionalLightPass directional_light_pass_;
+  PointLightPass point_light_pass_;
   ExposurePass exposure_pass_;
   TonemappingPass tonemapping_pass_;
 
@@ -100,6 +106,26 @@ class SceneRenderer {
    */
   static const GLuint CreateFullscreenMeshUvsVbo(
       const GLuint fullscreen_mesh_vao);
+
+  /**
+   * @brief 球状のメッシュのVAOを作成する
+   * @return 作成したVAOのID
+   *
+   * 作成した球状のメッシュはPunctual Lightの描画範囲を決めるのに使います。
+   */
+  static const GLuint CreateSphereMeshVao();
+
+  /**
+   * @brief 球状のメッシュのVBOを作成する
+   * @return 作成したVBOのID
+   */
+  static const GLuint CreateSphereMeshVbo(const GLuint sphere_mesh_vao);
+
+  /**
+   * @brief 球状のメッシュのIBOを作成する
+   * @return 作成したIBOのID
+   */
+  static const GLuint CreateSphereMeshIbo(const GLuint sphere_mesh_vao);
 
   /**
    * @brief GBuffer0のテクスチャを作成する

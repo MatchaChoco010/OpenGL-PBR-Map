@@ -36,7 +36,13 @@ std::unique_ptr<Scene> Scene::CreateTestScene(const int width,
 
   // DirectionalLightの設定
   scene->directional_light_ = std::make_unique<DirectionalLight>(
-      700.0f, glm::vec3(-0.5f, -1.0f, -0.5f), glm::vec3(1.0f));
+      10.0f, glm::vec3(-0.5f, -1.0f, -0.5f), glm::vec3(1.0f));
+
+  // PointLightの追加
+  scene->point_lights_.emplace_back(glm::vec3(-2.0f, 0.0f, 2.0f), 600.0f,
+                                    glm::vec3(0.5f, 0.8f, 1.0f), 10.0f);
+  scene->point_lights_.emplace_back(glm::vec3(2.0f, 0.0f, 2.0f), 600.0f,
+                                    glm::vec3(0.5f, 1.0f, 0.8f), 10.0f);
 
   return scene;
 }

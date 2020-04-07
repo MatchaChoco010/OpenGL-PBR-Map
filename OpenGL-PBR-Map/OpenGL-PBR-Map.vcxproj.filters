@@ -72,6 +72,12 @@
     <ClCompile Include="tonemapping_pass.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
+    <ClCompile Include="point_light.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="point_light_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -114,6 +120,12 @@
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
     <ClInclude Include="tonemapping_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="point_light.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="point_light_pass.h">
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
   </ItemGroup>
