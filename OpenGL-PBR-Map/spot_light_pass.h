@@ -1,5 +1,5 @@
-#ifndef OPENGL_PBR_MAP_POINT_LIGHT_PASS_H_
-#define OPENGL_PBR_MAP_POINT_LIGHT_PASS_H_
+#ifndef OPENGL_PBR_MAP_SPOT_LIGHT_PASS_H_
+#define OPENGL_PBR_MAP_SPOT_LIGHT_PASS_H_
 
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
@@ -10,18 +10,19 @@
 namespace game {
 
 /**
- * @brief PointLighatパスを表現するクラス
+ * @brief SpotLighatパスを表現するクラス
  *
- * GBufferとシーンのPointLightの情報をもとに
- * PointLightのライティングを計算しHDRのカラーバッファに書き込みます。
+ * GBufferとシーンのSpotLightの情報をもとに
+ * SpotLightのライティングを計算しHDRのカラーバッファに書き込みます。
+ * リソースの多重開放を避けるためコピー禁止です。
  */
-class PointLightPass {
+class SpotLightPass {
  public:
   /**
    * @brief このパスをレンダリングする
    * @param scene レンダリングするシーン
    *
-   * PointLightのライティングをHDRカラーバッファに書き出します。
+   * SpotLightのライティングをHDRカラーバッファに書き出します。
    */
   void Render(const Scene& scene) const;
 
@@ -35,23 +36,23 @@ class PointLightPass {
    * @param width ウィンドウの幅
    * @param height ウィンドウの高さ
    */
-  PointLightPass(const GLuint hdr_color_fbo, const GLuint gbuffer0,
-                 const GLuint gbuffer1, const GLuint gbuffer2,
-                 const GLuint sphere_vao, const GLuint width,
-                 const GLuint height);
+  SpotLightPass(const GLuint hdr_color_fbo, const GLuint gbuffer0,
+                const GLuint gbuffer1, const GLuint gbuffer2,
+                const GLuint sphere_vao,
+                const GLuint width, const GLuint height);
 
   /**
    * @brief デストラクタ
    *
    * コンストラクタで確保したリソースを開放します。
    */
-  ~PointLightPass();
+  ~SpotLightPass();
 
  private:
   const GLuint width_;
   const GLuint height_;
 
-  const GLuint hdr_fbo_;
+  const GLuint hdr_color_fbo_;
   const GLuint gbuffer0_;
   const GLuint gbuffer1_;
   const GLuint gbuffer2_;
@@ -66,11 +67,14 @@ class PointLightPass {
   const GLuint light_intensity_loc_;
   const GLuint light_color_loc_;
   const GLuint light_range_loc_;
+  const GLuint light_direction_loc_;
+  const GLuint light_angle_loc_;
+  const GLuint light_blend_loc_;
   const GLuint world_camera_pos_loc_;
   const GLuint view_projection_i_loc_;
   const GLuint projection_params_loc_;
 };
 
-}  // namespace game
+}
 
-#endif  // OPENGL_PBR_MAP_POINT_LIGHT_PASS_H_
+#endif  // OPENGL_PBR_MAP_SPOT_LIGHT_PASS_H_

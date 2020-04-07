@@ -15,6 +15,8 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
 
   point_light_pass_.Render(scene);
 
+  spot_light_pass_.Render(scene);
+
   exposure_pass_.SetExposure(0.1f);
   exposure_pass_.Render();
 
@@ -54,6 +56,8 @@ SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
                               fullscreen_mesh_vao_, width, height),
       point_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_, sphere_vao_,
                         width, height),
+      spot_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_, sphere_vao_,
+                       width, height),
       exposure_pass_(hdr_color_buffer_, exposured_fbo_, fullscreen_mesh_vao_,
                      width, height),
       tonemapping_pass_(exposured_color_buffer_, fullscreen_mesh_vao_, width,

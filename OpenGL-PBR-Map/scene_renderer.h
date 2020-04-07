@@ -11,6 +11,7 @@
 #include "geometry_pass.h"
 #include "point_light_pass.h"
 #include "scene.h"
+#include "spot_light_pass.h"
 #include "tonemapping_pass.h"
 
 namespace game {
@@ -77,6 +78,7 @@ class SceneRenderer {
   GeometryPass geometry_pass_;
   DirectionalLightPass directional_light_pass_;
   PointLightPass point_light_pass_;
+  SpotLightPass spot_light_pass_;
   ExposurePass exposure_pass_;
   TonemappingPass tonemapping_pass_;
 

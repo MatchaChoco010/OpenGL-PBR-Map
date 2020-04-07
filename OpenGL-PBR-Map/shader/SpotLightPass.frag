@@ -10,6 +10,9 @@ uniform vec3 worldLightPosition;
 uniform float lightIntensity; // lm
 uniform vec3 lightColor;
 uniform float lightRange;
+uniform vec3 lightDirection;
+uniform float lightAngle; // radian
+uniform float lightBlend; // 0-1
 
 uniform vec3 worldCameraPos;
 uniform mat4 ViewProjectionI;
@@ -58,9 +61,21 @@ float DistanceAttenuation(float distance)
   return att * smoothatt;
 }
 
+float AngleAttenuation(vec3 L)
+{
+  float outerTheta = lightAngle / 2.0;
+  float innerTheta = outerTheta * (1.0 - lightBlend);
+  float cos_s = dot(-L, normalize(lightDirection));
+  float cos_u = cos(outerTheta);
+  float cos_p = cos(innerTheta);
+  float t = (cos_s - cos_u) / (cos_p - cos_u);
+  t = clamp(t, 0, 1);
+  return t * t;
+}
+
 vec3 LightIrradiance(float intensity, vec3 color, vec3 L, vec3 N, float distance)
 {
-  return 1.0 / (4.0 * PI) * intensity * color * max(0, dot(L, N)) * DistanceAttenuation(distance);
+  return 1.0 / PI * intensity * color * max(0, dot(L, N)) * DistanceAttenuation(distance) * AngleAttenuation(L);
 }
 // #############################################################################
 

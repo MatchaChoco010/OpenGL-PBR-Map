@@ -44,6 +44,11 @@ std::unique_ptr<Scene> Scene::CreateTestScene(const int width,
   scene->point_lights_.emplace_back(glm::vec3(2.0f, 0.0f, 2.0f), 600.0f,
                                     glm::vec3(0.5f, 1.0f, 0.8f), 10.0f);
 
+  // SpotLightの追加
+  scene->spot_lights_.emplace_back(
+      glm::vec3(0.0f, 5.0f, 5.0f), 2200.0f, glm::vec3(1.0f, 0.5f, 0.5f), 10.0f,
+      glm::vec3(0.0f, -1.0f, -1.0f), glm::radians(30.0f), 0.2);
+
   return scene;
 }
 
