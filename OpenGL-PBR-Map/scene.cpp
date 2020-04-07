@@ -13,7 +13,7 @@ std::unique_ptr<Scene> Scene::CreateTestScene(const int width,
                                  Texture("monkey_Metallic.png", false),
                                  Texture("monkey_Roughness.png", false),
                                  Texture("monkey_Normal.png", false),
-                                 Texture("monkey_Emissive.png", true), 10.0f);
+                                 Texture("monkey_Emissive.png", true), 150.0f);
 
   // Sceneの作成
   auto scene = std::make_unique<Scene>();

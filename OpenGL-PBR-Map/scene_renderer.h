@@ -7,8 +7,10 @@
 #include <array>
 
 #include "directional_light_pass.h"
+#include "exposure_pass.h"
 #include "geometry_pass.h"
 #include "scene.h"
+#include "tonemapping_pass.h"
 
 namespace game {
 
@@ -64,8 +66,13 @@ class SceneRenderer {
   const GLuint hdr_depth_buffer_;
   const GLuint hdr_fbo_;
 
+  const GLuint exposured_color_buffer_;
+  const GLuint exposured_fbo_;
+
   GeometryPass geometry_pass_;
   DirectionalLightPass directional_light_pass_;
+  ExposurePass exposure_pass_;
+  TonemappingPass tonemapping_pass_;
 
   /**
    * @brief リソースの開放をする
@@ -160,6 +167,20 @@ class SceneRenderer {
    */
   static const GLuint CreateHdrFbo(const GLuint hdr_color_buffer,
                                    const GLuint hdr_depth_buffer);
+
+  /**
+   * @brief exposuredカラーバッファのテクスチャを作成する
+   * @return 作成したexposuredカラーバッファのテクスチャのID
+   */
+  static const GLuint CreateExposuredColorBuffer(const GLuint width,
+                                                 const GLuint height);
+
+  /**
+   * @brief exposuredカラーバッファのFBOを作成する
+   * @param exposured_color_buffer バッファのテクスチャのID
+   * @return 作成したexposuredカラーバッファのFBOのID
+   */
+  static const GLuint CreateExposuredFbo(const GLuint exposured_color_buffer);
 };
 
 }  // namespace game

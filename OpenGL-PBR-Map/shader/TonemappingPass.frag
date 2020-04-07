@@ -1,0 +1,547 @@
+#version 460
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outputColor;
+
+layout (binding = 0) uniform sampler2D inputTexture;
+
+
+const float PI = 3.14159265358979323846;
+
+const float HALF_MAX = 65504.0;
+
+
+// ACES ######################################################################
+//
+// https://github.com/ampas/aces-dev
+//
+// Academy Color Encoding System (ACES) software and tools are provided by the
+// Academy under the following terms and conditions: A worldwide, royalty-free,
+// non-exclusive right to copy, modify, create derivatives, and use, in source
+// and binary forms, is hereby granted, subject to acceptance of this license.
+//
+// Copyright 2018 Academy of Motion Picture Arts and Sciences (A.M.P.A.S.).
+// Portions contributed by others as indicated. All rights reserved.
+//
+// Performance of any of the aforementioned acts indicates acceptance to be
+// bound by the following terms and conditions:
+//
+// * Copies of source code, in whole or in part, must retain the above
+//   copyright notice, this list of conditions and the Disclaimer of Warranty.
+//
+// * Use in binary form must retain the above copyright notice, this list of
+//   conditions and the Disclaimer of Warranty in the documentation and/or
+//   other materials provided with the distribution.
+//
+// * Nothing in this license shall be deemed to grant any rights to trademarks,
+//   copyrights, patents, trade secrets or any other intellectual property of
+//   A.M.P.A.S. or any contributors, except as expressly stated herein.
+//
+// * Neither the name "A.M.P.A.S." nor the name of any other contributors to
+//   this software may be used to endorse or promote products derivative of or
+//   based on this software without express prior written permission of
+//   A.M.P.A.S. or the contributors, as appropriate.
+//
+// This license shall be construed pursuant to the laws of the State of
+// California, and any disputes related thereto shall be subject to the
+// jurisdiction of the courts therein.
+//
+// Disclaimer of Warranty: THIS SOFTWARE IS PROVIDED BY A.M.P.A.S. AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+// NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+// PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT SHALL
+// A.M.P.A.S., OR ANY CONTRIBUTORS OR DISTRIBUTORS, BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, RESITUTIONARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+// DAMAGE.
+//
+// WITHOUT LIMITING THE GENERALITY OF THE FOREGOING, THE ACADEMY SPECIFICALLY
+// DISCLAIMS ANY REPRESENTATIONS OR WARRANTIES WHATSOEVER RELATED TO PATENT OR
+// OTHER INTELLECTUAL PROPERTY RIGHTS IN THE ACADEMY COLOR ENCODING SYSTEM, OR
+// APPLICATIONS THEREOF, HELD BY PARTIES OTHER THAN A.M.P.A.S.,WHETHER
+// DISCLOSED OR UNDISCLOSED.
+//
+// ############################################################################
+
+// https://github.com/ampas/aces-dev/blob/master/transforms/ctl/README-MATRIX.md
+
+const mat3 sRGB_2_AP0 = mat3(
+  0.4397010, 0.0897923, 0.0175440,
+  0.3829780, 0.8134230, 0.1115440,
+  0.1773350, 0.0967616, 0.8707040
+);
+
+const mat3 AP0_2_AP1_MAT = mat3(
+  1.4514393161, -0.0765537734, 0.0083161484,
+  -0.2365107469, 1.1762296998, -0.0060324498,
+  -0.2149285693, -0.0996759264, 0.9977163014
+);
+
+const mat3 AP1_2_AP0_MAT = mat3(
+  0.6954522414, 0.0447945634, -0.0055258826,
+  0.1406786965, 0.8596711185, 0.0040252103,
+  0.1638690622, 0.0955343182, 1.0015006723
+);
+
+const mat3 AP1_2_XYZ_MAT = mat3(
+  0.6624541811, 0.2722287168, -0.0055746495,
+  0.1340042065, 0.6740817658, 0.0040607335,
+  0.1561876870, 0.0536895174, 1.0103391003
+);
+
+const mat3 XYZ_2_AP1_MAT = mat3(
+  1.6410233797, -0.6636628587, 0.0117218943,
+  -0.3248032942, 1.6153315917, -0.0082844420,
+  -0.2364246952, 0.0167563477, 0.9883948585
+);
+
+const mat3 XYZ_2_REC709_MAT = mat3(
+  3.2409699419, -0.9692436363, 0.0556300797,
+  -1.5373831776, 1.8759675015, -0.2039769589,
+  -0.4986107603, 0.0415550574, 1.0569715142
+);
+
+const mat3 RRT_SAT_MAT = mat3(
+  0.9708890, 0.0108892, 0.0108892,
+  0.0269633, 0.9869630, 0.0269633,
+  0.00214758, 0.00214758, 0.96214800
+);
+
+const mat3 ODT_SAT_MAT = mat3(
+  0.949056, 0.019056, 0.019056,
+  0.0471857, 0.9771860, 0.0471857,
+  0.00375827, 0.00375827, 0.93375800
+);
+
+const mat3 D60_2_D65_CAT = mat3(
+  0.98722400, -0.00759836, 0.00307257,
+  -0.00611327, 1.00186000, -0.00509595,
+  0.0159533, 0.0053302, 1.0816800
+);
+
+float log10(float x)
+{
+  return log2(x) / log2(10.0);
+}
+
+vec3 sRGBToACES(vec3 srgb)
+{
+  // return XYZ_to_AP0 * sRGB_to_XYZ * srgb;
+  return sRGB_2_AP0 * srgb;
+  // return srgb * sRGB_2_AP0;
+}
+
+float min_f3(vec3 a)
+{
+  return min(a.x, min(a.y, a.z));
+}
+
+float max_f3(vec3 a)
+{
+  return max(a.x, max(a.y, a.z));
+}
+
+float rgb_2_saturation(vec3 rgb)
+{
+  const float TINY = 1e-10;
+  float mi = min_f3(rgb);
+  float ma = max_f3(rgb);
+  return (max(ma, TINY) - max(mi, TINY)) / max(ma, 1e-2);
+}
+
+float rgb_2_yc(vec3 rgb)
+{
+  const float ycRadiusWeight = 1.75;
+  float r = rgb.r;
+  float g = rgb.g;
+  float b = rgb.b;
+  float chroma = sqrt(b * (b - g) + g * (g - r) + r * (r - b));
+  return (b + g + r + ycRadiusWeight * chroma) / 3.0;
+}
+
+float sigmoid_shaper(float x)
+{
+  float t = max(1.0 - abs(x / 2.0), 0.0);
+  float y = 1.0 + sign(x) * (1.0 - t * t);
+  return y / 2.0;
+}
+
+float glow_fwd(float ycIn, float glowGainIn, float glowMid)
+{
+  float glowGainOut;
+
+  if (ycIn <= 2.0 / 3.0 * glowMid)
+    glowGainOut = glowGainIn;
+  else if (ycIn >= 2.0 * glowMid)
+    glowGainOut = 0.0;
+  else
+    glowGainOut = glowGainIn * (glowMid / ycIn - 1.0 / 2.0);
+
+  return glowGainOut;
+}
+
+float rgb_2_hue(vec3 rgb)
+{
+  float hue;
+  if (rgb.r == rgb.g && rgb.g == rgb.b)
+    hue = 0.0;
+  else
+    hue = (180.0 / PI) * atan(sqrt(3.0) * (rgb.g - rgb.b), 2.0 * rgb.r - rgb.g - rgb.b);
+  if (hue < 0.0) hue = hue + 360.0;
+  return hue;
+}
+
+float center_hue(float hue, float centerH)
+{
+  float hueCentered = hue - centerH;
+  if (hueCentered < -180.0) hueCentered = hueCentered + 360.0;
+  else if (hueCentered > 180.0) hueCentered = hueCentered - 360.0;
+  return hueCentered;
+}
+
+float cubic_basis_shaper(float x, float w)
+{
+  float M[4][4] = {
+    { -1.0 / 6, 3.0 / 6, -3.0 / 6, 1.0 / 6 },
+    { 3.0 / 6, -6.0 / 6, 3.0 / 6, 0.0 / 6 },
+    { -3.0 / 6, 0.0 / 6, 3.0 / 6, 0.0 / 6 },
+    { 1.0 / 6, 4.0 / 6, 1.0 / 6, 0.0 / 6}
+  };
+  float knots[5] = {
+    -w / 2.0,
+    -w / 4.0,
+    0.0,
+    w / 4.0,
+    w / 2.0
+  };
+
+  float y = 0.0;
+  if ((x > knots[0]) && (x < knots[4]))
+  {
+    float knot_coord = (x - knots[0]) * 4.0 / w;
+    int j = int(knot_coord);
+    float t = knot_coord - j;
+
+    float monomials[4] = { t * t * t, t * t, t, 1.0 };
+
+    if (j == 3)
+    {
+      y = monomials[0] * M[0][0] + monomials[1] * M[1][0] + monomials[2] * M[2][0] + monomials[3] * M[3][0];
+    }
+    else if (j == 2)
+    {
+      y = monomials[0] * M[0][1] + monomials[1] * M[1][1] + monomials[2] * M[2][1] + monomials[3] * M[3][1];
+    }
+    else if (j == 1)
+    {
+      y = monomials[0] * M[0][2] + monomials[1] * M[1][2] + monomials[2] * M[2][2] + monomials[3] * M[3][2];
+    }
+    else if (j == 0)
+    {
+      y = monomials[0] * M[0][3] + monomials[1] * M[1][3] + monomials[2] * M[2][3] + monomials[3] * M[3][3];
+    }
+    else
+    {
+      y = 0.0;
+    }
+  }
+
+  return y * 3.0 / 2.0;
+}
+
+const mat3 M = mat3(
+  0.5, -1.0, 0.5,
+  -1.0, 1.0, 0.5,
+  0.5, 0.0, 0.0
+);
+
+float segmented_spline_c5_fwd(float x)
+{
+  const float coefsLow[6] = { -4.0000000000, -4.0000000000, -3.1573765773, -0.4852499958, 1.8477324706, 1.8477324706 };
+  const float coefsHigh[6] = { -0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000 };
+  const vec2 minPoint = vec2(0.18 * exp2(-15.0), 0.0001);
+  const vec2 midPoint = vec2(0.18, 0.48);
+  const vec2 maxPoint = vec2(0.18 * exp2(18.0), 10000.0);
+  const float slopeLow = 0.0;
+  const float slopeHigh = 0.0;
+
+  const int N_KNOTS_LOW = 4;
+  const int N_KNOTS_HIGH = 4;
+
+  float xCheck = x;
+  if (xCheck <= 0.0) xCheck = 0.00006103515; // = pow(2.0, -14.0)
+
+  float logx = log10(xCheck);
+  float logy;
+
+  if (logx <= log10(minPoint.x))
+  {
+    logy = logx * slopeLow + (log10(minPoint.y) - slopeLow * log10(minPoint.x));
+  }
+  else if ((logx > log10(minPoint.x)) && (logx < log10(midPoint.x)))
+  {
+    float knot_coord = (N_KNOTS_LOW - 1) * (logx - log10(minPoint.x)) / (log10(midPoint.x) - log10(minPoint.x));
+    int j = int(knot_coord);
+    float t = knot_coord - j;
+
+    vec3 cf = vec3(coefsLow[j], coefsLow[j + 1], coefsLow[j + 2]);
+    vec3 monomials = vec3(t * t, t, 1.0);
+    logy = dot(monomials, M * cf);
+  }
+  else if((logx >= log10(midPoint.x)) && (logx < log10(maxPoint.x)))
+  {
+    float knot_coord = (N_KNOTS_HIGH - 1) * (logx - log10(midPoint.x)) / (log10(maxPoint.x) - log10(midPoint.x));
+    int j = int(knot_coord);
+    float t = knot_coord - j;
+
+    vec3 cf = vec3(coefsHigh[j], coefsHigh[j + 1], coefsHigh[j + 2]);
+    vec3 monomials = vec3(t * t, t , 1.0);
+    logy = dot(monomials, M * cf);
+  }
+  else
+  {
+    logy = logx * slopeHigh + (log10(maxPoint.y) - slopeHigh * log10(maxPoint.x));
+  }
+
+  return pow(10.0, logy);
+}
+
+float segmented_spline_c9_fwd(float x)
+{
+  const float coefsLow[10] = { -1.6989700043, -1.6989700043, -1.4779000000, -1.2291000000, -0.8648000000, -0.4480000000, 0.0051800000, 0.4511080334, 0.9113744414, 0.9113744414 };
+  const float coefsHigh[10] = { 0.5154386965, 0.8470437783, 1.1358000000, 1.3802000000, 1.5197000000, 1.5985000000, 1.6467000000, 1.6746091357, 1.6878733390, 1.6878733390 };
+  const vec2 minPoint = vec2(segmented_spline_c5_fwd(0.18 * exp2(-6.5)), 0.02);
+  const vec2 midPoint = vec2(segmented_spline_c5_fwd(0.18), 4.8);
+  const vec2 maxPoint = vec2(segmented_spline_c5_fwd(0.18 * exp2(6.5)), 48.0);
+  const float slopeLow = 0.0;
+  const float slopeHigh = 0.04;
+
+  const int N_KNOTS_LOW = 8;
+  const int N_KNOTS_HIGH = 8;
+
+  float xCheck = x;
+  if (xCheck <= 0.0) xCheck = 1e-4;
+
+  float logx = log10(xCheck);
+  float logy;
+
+  if (logx <= log10(minPoint.x))
+  {
+    logy = logx * slopeLow + (log10(minPoint.y) - slopeLow * log10(minPoint.x));
+  }
+  else if ((logx > log10(minPoint.x)) && (logx < log10(midPoint.x)))
+  {
+    float knot_coord = (N_KNOTS_LOW - 1) * (logx - log10(minPoint.x)) / (log10(midPoint.x) - log10(minPoint.x));
+    int j = int(knot_coord);
+    float t = knot_coord - j;
+
+    vec3 cf = vec3(coefsLow[j], coefsLow[j + 1], coefsLow[j + 2]);
+    vec3 monomials = vec3(t * t, t, 1.0);
+    logy = dot(monomials, M * cf);
+  }
+  else if ((logx >= log10(midPoint.x)) && (logx < log10(maxPoint.x)))
+  {
+    float knot_coord = (N_KNOTS_HIGH - 1) * (logx - log10(midPoint.x)) / (log10(maxPoint.x) - log10(midPoint.x));
+    int j = int(knot_coord);
+    float t = knot_coord - j;
+
+    vec3 cf = vec3(coefsHigh[j], coefsHigh[j + 1], coefsHigh[j + 2]);
+    vec3 monomials = vec3(t * t, t, 1.0);
+    logy = dot(monomials, M * cf);
+  }
+  else
+  {
+      logy = logx * slopeHigh + (log10(maxPoint.y) - slopeHigh * log10(maxPoint.x));
+  }
+
+  return pow(10.0, logy);
+}
+
+const float RRT_GLOW_GAIN = 0.05;
+const float RRT_GLOW_MID = 0.08;
+
+const float RRT_RED_SCALE = 0.82;
+const float RRT_RED_PIVOT = 0.03;
+const float RRT_RED_HUE = 0.0;
+const float RRT_RED_WIDTH = 135.0;
+
+const float RRT_SAT_FACTOR = 0.96;
+
+vec3 RRT(vec3 aces)
+{
+  // --- Glow module --- //
+  float saturation = rgb_2_saturation(aces);
+  float ycIn = rgb_2_yc(aces);
+  float s = sigmoid_shaper((saturation - 0.4) / 0.2);
+  float addedGlow = 1.0 + glow_fwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID);
+  aces *= addedGlow;
+
+  // --- Red modifier --- //
+  float hue = rgb_2_hue(aces);
+  float centeredHue = center_hue(hue, RRT_RED_HUE);
+  float hueWeight = cubic_basis_shaper(centeredHue, RRT_RED_WIDTH);
+
+  aces.r += hueWeight * saturation * (RRT_RED_PIVOT - aces.r) * (1.0 - RRT_RED_SCALE);
+
+  // --- ACES to RGB rendering space --- //
+  aces = clamp(aces, 0.0, HALF_MAX);  // avoids saturated negative colors from becoming positive in the matrix
+  vec3 rgbPre = AP0_2_AP1_MAT * aces;
+  rgbPre = clamp(rgbPre, 0.0, HALF_MAX);
+
+  // --- Global desaturation --- //
+  rgbPre = RRT_SAT_MAT * rgbPre;
+
+  // --- Apply the tonescale independently in rendering-space RGB --- //
+  vec3 rgbPost;
+  rgbPost.x = segmented_spline_c5_fwd(rgbPre.x);
+  rgbPost.y = segmented_spline_c5_fwd(rgbPre.y);
+  rgbPost.z = segmented_spline_c5_fwd(rgbPre.z);
+
+  // --- RGB rendering space to OCES --- //
+  vec3 rgbOces = AP1_2_AP0_MAT * rgbPost;
+
+  // Assign OCES RGB to output variables (OCES)
+  return rgbOces;
+}
+
+vec3 Y_2_linCV(vec3 Y, float Ymax, float Ymin)
+{
+  return (Y - Ymin) / (Ymax - Ymin);
+}
+
+vec3 XYZ_2_xyY(vec3 XYZ)
+{
+  float divisor = max(dot(XYZ, (1.0).xxx), 1e-4);
+  return vec3(XYZ.xy / divisor, XYZ.y);
+}
+
+vec3 xyY_2_XYZ(vec3 xyY)
+{
+  float m = xyY.z / max(xyY.y, 1e-4);
+  vec3 XYZ = vec3(xyY.xz, (1.0 - xyY.x - xyY.y));
+  XYZ.xz *= m;
+  return XYZ;
+}
+
+const float DIM_SURROUND_GAMMA = 0.9811;
+
+vec3 darkSurround_to_dimSurround(vec3 linearCV)
+{
+  vec3 XYZ = AP1_2_XYZ_MAT * linearCV;
+
+  vec3 xyY = XYZ_2_xyY(XYZ);
+  xyY.z = clamp(xyY.z, 0.0, HALF_MAX);
+  xyY.z = pow(xyY.z, DIM_SURROUND_GAMMA);
+  XYZ = xyY_2_XYZ(xyY);
+
+  return XYZ_2_AP1_MAT * XYZ;
+}
+
+float moncurve_r(float y, float gamma, float offs)
+{
+    // Reverse monitor curve
+    float x;
+    const float yb = pow(offs * gamma / ((gamma - 1.0) * (1.0 + offs)), gamma);
+    const float rs = pow((gamma - 1.0) / offs, gamma - 1.0) * pow((1.0 + offs) / gamma, gamma);
+    if (y >= yb)
+        x = (1.0 + offs) * pow(y, 1.0 / gamma) - offs;
+    else
+        x = y * rs;
+    return x;
+}
+
+const float CINEMA_WHITE = 48.0;
+const float CINEMA_BLACK = CINEMA_WHITE / 2400.0;
+
+// NOTE: The EOTF is *NOT* gamma 2.4, it follows IEC 61966-2-1:1999
+const float DISPGAMMA = 2.4;
+const float OFFSET = 0.055;
+
+vec3 ODT_RGBmonitor_100nits_dim(vec3 oces)
+{
+  // OCES to RGB rendering space
+  vec3 rgbPre = AP0_2_AP1_MAT * oces;
+
+  // Apply the tonescale independently in rendering-space RGB
+  vec3 rgbPost;
+  rgbPost.x = segmented_spline_c9_fwd(rgbPre.x);
+  rgbPost.y = segmented_spline_c9_fwd(rgbPre.y);
+  rgbPost.z = segmented_spline_c9_fwd(rgbPre.z);
+
+  // Scale luminance to linear code value
+  vec3 linearCV = Y_2_linCV(rgbPost, CINEMA_WHITE, CINEMA_BLACK);
+
+    // Apply gamma adjustment to compensate for dim surround
+  linearCV = darkSurround_to_dimSurround(linearCV);
+
+  // Apply desaturation to compensate for luminance difference
+  linearCV = ODT_SAT_MAT * linearCV;
+
+  // Convert to display primary encoding
+  // Rendering space RGB to XYZ
+  vec3 XYZ = AP1_2_XYZ_MAT * linearCV;
+
+  // Apply CAT from ACES white point to assumed observer adapted white point
+  XYZ = D60_2_D65_CAT * XYZ;
+
+  // CIE XYZ to display primaries
+  // linearCV = XYZ_2_DISPLAY_PRI_MAT * XYZ;
+  linearCV = XYZ_2_REC709_MAT * XYZ;
+
+  // Handle out-of-gamut values
+  // Clip values < 0 or > 1 (i.e. projecting outside the display primaries)
+  linearCV = clamp(linearCV, 0.0 , 1.0);
+
+  vec3 outputCV;
+  outputCV.x = moncurve_r(linearCV.x, DISPGAMMA, OFFSET);
+  outputCV.y = moncurve_r(linearCV.y, DISPGAMMA, OFFSET);
+  outputCV.z = moncurve_r(linearCV.z, DISPGAMMA, OFFSET);
+  return outputCV;
+}
+
+vec3 ACESTonemapping(vec3 aces)
+{
+  return ODT_RGBmonitor_100nits_dim(RRT(aces));
+}
+// ###########################################################################
+
+
+
+// gamma correction ##########################################################
+const float  SCALE_0= 1.0/12.92;
+const float  SCALE_1= 1.0/1.055;
+const float  OFFSET_1= 0.055 * SCALE_1;
+
+float LinearToSRGB_F( float color )
+{
+    color= clamp( color, 0.0, 1.0 );
+    if( color < 0.0031308 ){
+        return  color * 12.92;
+    }
+    return  1.055 * pow( color, 0.41666 ) - 0.055;
+}
+
+vec3 LinearToSRGB( vec3 color )
+{
+    return  vec3(
+        LinearToSRGB_F( color.x ),
+        LinearToSRGB_F( color.y ),
+        LinearToSRGB_F( color.z ) );
+}
+// ###########################################################################
+
+
+void main()
+{
+  vec3 inputColor = texture(inputTexture, vUv).rgb;
+  inputColor = clamp(inputColor, 0, HALF_MAX);
+
+  vec3 tonemappedColor = ACESTonemapping(inputColor);
+
+  outputColor = vec4(LinearToSRGB(tonemappedColor), 1.0);
+}

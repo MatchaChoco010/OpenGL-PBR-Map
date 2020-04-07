@@ -13,11 +13,10 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
 
   directional_light_pass_.Render(scene);
 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, hdr_fbo_);
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glReadBuffer(GL_COLOR_ATTACHMENT0);
-  glBlitFramebuffer(0, 0, width_, height_, 0, 0, width_, height_,
-                    GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  exposure_pass_.SetExposure(0.01f);
+  exposure_pass_.Render();
+
+  tonemapping_pass_.Render();
 }
 
 SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
@@ -37,9 +36,15 @@ SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
       hdr_color_buffer_(CreateHdrColorBuffer(width, height)),
       hdr_depth_buffer_(CreateHdrDepthBuffer(width, height)),
       hdr_fbo_(CreateHdrFbo(hdr_color_buffer_, hdr_depth_buffer_)),
+      exposured_color_buffer_(CreateExposuredColorBuffer(width, height)),
+      exposured_fbo_(CreateExposuredFbo(exposured_color_buffer_)),
       geometry_pass_(gbuffer_fbo_),
       directional_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_,
-                              fullscreen_mesh_vao_, width, height) {}
+                              fullscreen_mesh_vao_, width, height),
+      exposure_pass_(hdr_color_buffer_, exposured_fbo_, fullscreen_mesh_vao_,
+                     width, height),
+      tonemapping_pass_(exposured_color_buffer_, fullscreen_mesh_vao_, width,
+                        height) {}
 
 SceneRenderer::~SceneRenderer() { Release(); }
 
@@ -49,6 +54,13 @@ void SceneRenderer::Release() {
   glDeleteTextures(1, &gbuffer1_);
   glDeleteTextures(1, &gbuffer2_);
   glDeleteRenderbuffers(1, &gbuffer_depth_);
+
+  glDeleteFramebuffers(1, &hdr_fbo_);
+  glDeleteTextures(1, &hdr_color_buffer_);
+  glDeleteRenderbuffers(1, &hdr_depth_buffer_);
+
+  glDeleteFramebuffers(1, &exposured_fbo_);
+  glDeleteTextures(1, &exposured_color_buffer_);
 }
 
 const GLuint SceneRenderer::CreateFullscreenMeshVao() {
@@ -219,6 +231,32 @@ const GLuint SceneRenderer::CreateHdrFbo(const GLuint hdr_color_buffer,
                          GL_TEXTURE_2D, hdr_depth_buffer, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   return hdr_fbo;
+}
+
+const GLuint SceneRenderer::CreateExposuredColorBuffer(const GLuint width,
+                                                       const GLuint height) {
+  GLuint exposured_color_buffer;
+  glGenTextures(1, &exposured_color_buffer);
+  glBindTexture(GL_TEXTURE_2D, exposured_color_buffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, nullptr);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  return exposured_color_buffer;
+}
+
+const GLuint SceneRenderer::CreateExposuredFbo(
+    const GLuint exposured_color_buffer) {
+  GLuint exposured_fbo;
+  glGenFramebuffers(1, &exposured_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, exposured_fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                         exposured_color_buffer, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return exposured_fbo;
 }
 
 }  // namespace game

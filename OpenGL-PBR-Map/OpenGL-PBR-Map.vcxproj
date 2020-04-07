@@ -151,6 +151,7 @@
     <ClCompile Include="create_program.cpp" />
     <ClCompile Include="directional_light.cpp" />
     <ClCompile Include="directional_light_pass.cpp" />
+    <ClCompile Include="exposure_pass.cpp" />
     <ClCompile Include="geometry_pass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="tonemapping_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
@@ -166,6 +168,7 @@
     <ClInclude Include="create_program.h" />
     <ClInclude Include="directional_light.h" />
     <ClInclude Include="directional_light_pass.h" />
+    <ClInclude Include="exposure_pass.h" />
     <ClInclude Include="geometry_pass.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_renderer.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="tonemapping_pass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

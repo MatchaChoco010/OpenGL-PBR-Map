@@ -66,6 +66,12 @@
     <ClCompile Include="directional_light_pass.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
+    <ClCompile Include="exposure_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="tonemapping_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -103,6 +109,12 @@
     </ClInclude>
     <ClInclude Include="directional_light.h">
       <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="exposure_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="tonemapping_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
