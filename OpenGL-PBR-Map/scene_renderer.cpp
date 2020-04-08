@@ -17,7 +17,7 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
 
   spot_light_pass_.Render(scene);
 
-  exposure_pass_.SetExposure(0.1f);
+  exposure_pass_.SetExposure(0.001f);
   exposure_pass_.Render();
 
   tonemapping_pass_.Render();
