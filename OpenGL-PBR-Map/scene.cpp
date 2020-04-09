@@ -2,6 +2,60 @@
 
 namespace game {
 
+void Scene::RecaluculateDirectionalShadowVolume() {
+  auto x_max = std::numeric_limits<float>::min();
+  auto y_max = std::numeric_limits<float>::min();
+  auto z_max = std::numeric_limits<float>::min();
+  auto x_min = std::numeric_limits<float>::max();
+  auto y_min = std::numeric_limits<float>::max();
+  auto z_min = std::numeric_limits<float>::max();
+  for (const auto& mesh_entity : mesh_entities_) {
+    if (x_max < mesh_entity.x_max_) x_max = mesh_entity.x_max_;
+    if (y_max < mesh_entity.y_max_) y_max = mesh_entity.y_max_;
+    if (z_max < mesh_entity.z_max_) z_max = mesh_entity.z_max_;
+    if (x_min > mesh_entity.x_min_) x_min = mesh_entity.x_min_;
+    if (y_min > mesh_entity.y_min_) y_min = mesh_entity.y_min_;
+    if (z_min > mesh_entity.z_min_) z_min = mesh_entity.z_min_;
+  }
+
+  auto dir = glm::normalize(directional_light_->GetDirection());
+  auto rot = glm::toMat4(glm::rotation(dir, glm::vec3(0.0f, 0.0f, -1.0f)));
+
+  auto x_max_rotated = std::numeric_limits<float>::min();
+  auto y_max_rotated = std::numeric_limits<float>::min();
+  auto z_max_rotated = std::numeric_limits<float>::min();
+  auto x_min_rotated = std::numeric_limits<float>::max();
+  auto y_min_rotated = std::numeric_limits<float>::max();
+  auto z_min_rotated = std::numeric_limits<float>::max();
+  std::vector<glm::vec4> vertices = {
+      glm::vec4(x_min, y_min, z_min, 1.0), glm::vec4(x_min, y_min, z_max, 1.0),
+      glm::vec4(x_min, y_max, z_min, 1.0), glm::vec4(x_min, y_max, z_max, 1.0),
+      glm::vec4(x_max, y_min, z_min, 1.0), glm::vec4(x_max, y_min, z_max, 1.0),
+      glm::vec4(x_max, y_max, z_min, 1.0), glm::vec4(x_max, y_max, z_max, 1.0),
+  };
+  for (const auto& vertex : vertices) {
+    auto v = rot * vertex;
+    if (v.x > x_max_rotated) x_max_rotated = v.x;
+    if (v.y > y_max_rotated) y_max_rotated = v.y;
+    if (v.z > z_max_rotated) z_max_rotated = v.z;
+    if (v.x < x_min_rotated) x_min_rotated = v.x;
+    if (v.y < y_min_rotated) y_min_rotated = v.y;
+    if (v.z < z_min_rotated) z_min_rotated = v.z;
+  }
+
+  glm::mat4 translate = glm::translate(
+      glm::mat4(1.0f),
+      glm::vec3(-(x_max_rotated + x_min_rotated) / 2,
+                -(y_max_rotated + y_min_rotated) / 2, -z_max_rotated));
+
+  auto light_view = translate * rot;
+
+  directional_light_->SetShadowVolume(
+      -(x_max_rotated - x_min_rotated) / 2, (x_max_rotated - x_min_rotated) / 2,
+      -(y_max_rotated - y_min_rotated) / 2, (y_max_rotated - y_min_rotated) / 2,
+      0.0f, (z_max_rotated - z_min_rotated), light_view);
+}
+
 std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
                                         const GLuint width,
                                         const GLuint height) {
@@ -84,7 +138,7 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
       }
 
       scene->mesh_entities_.emplace_back(mesh, material, position, rotation,
-                                        scale);
+                                         scale);
     }
 
     // Directional Light
@@ -199,9 +253,11 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
       }
 
       scene->spot_lights_.emplace_back(position, intensity, color, range,
-                                      direction, angle, blend);
+                                       direction, angle, blend);
     }
   }
+
+  scene->RecaluculateDirectionalShadowVolume();
 
   return scene;
 }

@@ -193,7 +193,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
                 materials_dict[material_name] = material_text
 
             pos = obj.matrix_world.to_translation()
-            rot = obj.matrix_world.to_euler()
+            rot = obj.matrix_world.to_euler('YXZ')
             scl = obj.matrix_world.to_scale()
 
             entity_text = "MeshEntity: {0}\n".format(obj.name)
@@ -242,7 +242,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
 
             if light.type == "SUN":
                 pos = obj.matrix_world.to_translation()
-                rot = obj.matrix_world.to_euler()
+                rot = obj.matrix_world.to_euler('YXZ')
 
                 # W/m2 to lumen/m2 at wavelength = 555nm (green)
                 intensity = light.energy * 683.002
@@ -263,7 +263,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
 
             if light.type == "SPOT":
                 pos = obj.matrix_world.to_translation()
-                rot = obj.matrix_world.to_euler()
+                rot = obj.matrix_world.to_euler('YXZ')
 
                 # W to lumen at wavelength = 555nm (green)
                 intensity = light.energy * 683.002

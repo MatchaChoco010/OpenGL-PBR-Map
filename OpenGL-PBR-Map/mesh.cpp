@@ -13,6 +13,21 @@ Mesh::Mesh(const std::vector<glm::vec3>& vertices,
     : size_(vertices.size()) {
   auto tangents = CalculateTangents(vertices, uvs);
 
+  x_max_ = std::numeric_limits<float>::min();
+  y_max_ = std::numeric_limits<float>::min();
+  z_max_ = std::numeric_limits<float>::min();
+  x_min_ = std::numeric_limits<float>::max();
+  y_min_ = std::numeric_limits<float>::max();
+  z_min_ = std::numeric_limits<float>::max();
+  for (const auto& v : vertices) {
+    if (v.x > x_max_) x_max_ = v.x;
+    if (v.y > y_max_) y_max_ = v.y;
+    if (v.z > z_max_) z_max_ = v.z;
+    if (v.x < x_min_) x_min_ = v.x;
+    if (v.y < y_min_) y_min_ = v.y;
+    if (v.z < z_min_) z_min_ = v.z;
+  }
+
   glGenVertexArrays(1, &vao_);
   glBindVertexArray(vao_);
 

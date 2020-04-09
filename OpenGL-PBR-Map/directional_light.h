@@ -63,6 +63,27 @@ class DirectionalLight {
   void SetColor(const glm::vec3 color);
 
   /**
+   * @brief 影ボリュームを設定する
+   * @param legt 影ボリュームのleftの値
+   * @param right 影ボリュームのrightの値
+   * @param bottom 影ボリュームのbottomの値
+   * @param top 影ボリュームのtopの値
+   * @param near 影ボリュームのnearの値
+   * @param far 影ボリュームのfarの値
+   * @param light_view ライトのビュー行列
+   */
+  void SetShadowVolume(const GLfloat left, const GLfloat right,
+                       const GLfloat bottom, const GLfloat top,
+                       const GLfloat near, const GLfloat far,
+                       const glm::mat4 light_view);
+
+  /**
+   * @brief 影行列を取得する
+   * @return 影行列
+   */
+  const glm::mat4 GetLightViewProjectionMatrix() const;
+
+  /**
    * @brief コンストラクタ
    * @param intensity 光源の強さ（lx）
    * @param direction 光源の向きベクトル
@@ -75,6 +96,7 @@ class DirectionalLight {
   GLfloat intensity_;
   glm::vec3 direction_;
   glm::vec3 color_;
+  glm::mat4 light_view_projection_matrix_;
 };
 
 }  // namespace game

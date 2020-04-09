@@ -2,6 +2,8 @@
 #define OPENGL_PBR_MAP_SCENE_H_
 
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <limits>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -22,6 +24,11 @@ class Scene {
   std::unique_ptr<DirectionalLight> directional_light_;
   std::vector<PointLight> point_lights_;
   std::vector<SpotLight> spot_lights_;
+
+  /**
+   * @brief 影ボリュームを再計算する
+   */
+  void RecaluculateDirectionalShadowVolume();
 
   /**
    * @brief 与えられたパスのシーンを読み込む

@@ -1,4 +1,3 @@
-import bpy
 bl_info = {
     "name": "scenefile exporter",
     "author": "MatchaChoco010",
@@ -19,6 +18,7 @@ if "bpy" in locals():
 else:
     from . import scenefile_exporter
 
+import bpy
 
 def menu_fn(self, context):
     self.layout.separator()

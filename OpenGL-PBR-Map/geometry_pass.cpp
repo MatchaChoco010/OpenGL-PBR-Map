@@ -12,17 +12,17 @@ void GeometryPass::Render(const Scene& scene) {
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_BLEND);
 
-  glUseProgram(shader_program_);
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer_fbo_);
-
-  const GLenum bufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                         GL_COLOR_ATTACHMENT2};
-  glDrawBuffers(3, bufs);
-
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClearDepth(1.0);
   glClearStencil(0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glUseProgram(shader_program_);
+
+  const GLenum bufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                         GL_COLOR_ATTACHMENT2};
+  glDrawBuffers(3, bufs);
 
   const auto view = scene.camera_->GetViewMatrix();
   const auto projection = scene.camera_->GetProjectionMatrix();

@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <limits>
 #include <memory>
 
 #include "material.h"
@@ -17,6 +18,12 @@ class MeshEntity {
  public:
   const std::shared_ptr<const Mesh> mesh_;
   const std::shared_ptr<const Material> material_;
+  float x_max_;
+  float y_max_;
+  float z_max_;
+  float x_min_;
+  float y_min_;
+  float z_min_;
 
   /**
    * @brief シーン上の位置を返す
@@ -94,6 +101,11 @@ class MeshEntity {
    * @brief Model行列を再計算する
    */
   void RecaluculateModelMatrix();
+
+  /**
+   * @brief AABBを再計算する
+   */
+  void RecaluculateAABB();
 };
 
 }  // namespace game

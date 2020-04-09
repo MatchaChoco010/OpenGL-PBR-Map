@@ -7,6 +7,7 @@
 #include <fstream>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -21,6 +22,13 @@ namespace game {
  */
 class Mesh {
  public:
+  float x_max_;
+  float y_max_;
+  float z_max_;
+  float x_min_;
+  float y_min_;
+  float z_min_;
+
   /**
    * @brief VAOをバインドし描画する
    */

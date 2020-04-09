@@ -42,8 +42,9 @@ bool Application::Init() {
   scene_->camera_ = std::make_unique<Camera>(
       glm::vec3(-1.37508f, 7.96885f, 21.19848),
       glm::vec3(glm::radians(73.2f - 90.0f), glm::radians(-4.61f),
-                glm::radians(0.000004f)),
-      static_cast<GLfloat>(height) / width, glm::radians(90.0f), 0.1f, 150.0f);
+                -glm::radians(-0.000004f)),
+      glm::radians(30.0f),
+      static_cast<GLfloat>(width) / height, 0.1f, 150.0f);
 
   // SceneRendererの作成
   scene_renderer_ = std::make_unique<SceneRenderer>(width, height);

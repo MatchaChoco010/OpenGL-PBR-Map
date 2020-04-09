@@ -58,11 +58,19 @@ class DirectionalLightPass {
   const GLuint width_;
   const GLuint height_;
 
+  const GLuint shadow_map_size_;
+
   const GLuint hdr_fbo_;
   const GLuint gbuffer0_;
   const GLuint gbuffer1_;
   const GLuint gbuffer2_;
   const GLuint fullscreen_vao_;
+
+  const GLuint shadow_map_;
+  const GLuint shadow_map_fbo_;
+
+  const GLuint shadow_pass_shader_program_;
+  const GLuint shadow_pass_model_view_projection_loc_;
 
   const GLuint shader_program_;
   const GLuint light_direction_loc_;
@@ -71,6 +79,20 @@ class DirectionalLightPass {
   const GLuint world_camera_pos_loc_;
   const GLuint view_projection_i_loc_;
   const GLuint projection_params_loc_;
+  const GLuint light_view_projection_loc_;
+
+  /**
+   * @brief シャドウマップテクスチャを作成する
+   * @return 生成したテクスチャのID
+   */
+  static const GLuint CreateShadowMap(const GLuint shadow_map_size);
+
+  /**
+   * @brief シャドウマップのFBOを生成する
+   * @param shadow_map シャドウマップテクスチャのID
+   * @return 生成したFBOのID
+   */
+  static const GLuint CreateShadowMapFbo(const GLuint shadow_map);
 };
 
 }  // namespace game

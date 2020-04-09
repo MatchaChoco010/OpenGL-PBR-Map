@@ -7,6 +7,7 @@ layout (location = 0) out vec3 outRadiance;
 layout (binding = 0) uniform sampler2D GBuffer0;
 layout (binding = 1) uniform sampler2D GBuffer1;
 layout (binding = 2) uniform sampler2D GBuffer2;
+layout (binding = 3) uniform sampler2DShadow ShadowMap;
 
 uniform vec3 lightDirection;
 uniform float lightIntensity; // lx
@@ -15,6 +16,8 @@ uniform vec3 lightColor;
 uniform vec3 worldCameraPos;
 uniform mat4 ViewProjectionI;
 uniform vec2 ProjectionParams; // x: near, y: far
+
+uniform mat4 LightViewProjection;
 
 
 const float PI = 3.14159265358979323846;
@@ -36,6 +39,30 @@ vec3 worldPosFromDepth(float d)
   vec4 projectedPos = vec4(vUv.x * 2.0 - 1.0, vUv.y * 2.0 - 1.0, z / w, 1.0);
   vec4 worldPos = ViewProjectionI * projectedPos;
   return worldPos.xyz / worldPos.w;
+}
+// ###########################################################################
+
+
+// 3x3 PCF Shadow ############################################################
+float getShadowAttenuation(vec3 worldPos)
+{
+  vec4 lightPos = LightViewProjection * vec4(worldPos, 1.0);
+  vec2 uv = lightPos.xy * vec2(0.5) + vec2(0.5);
+  float depthFromWorldPos = (lightPos.z / lightPos.w) * 0.5 + 0.5;
+
+  ivec2 shadowMapSize = textureSize(ShadowMap, 0);
+  vec2 offset = 1.0 / shadowMapSize.xy;
+
+  float shadow = 0.0;
+  for (int i = -1; i <= 1; i++)
+  {
+    for (int j = -1; j <= 1; j++)
+    {
+      vec3 UVC = vec3(uv + offset * vec2(i, j), depthFromWorldPos + 0.00001);
+      shadow += texture(ShadowMap, UVC).x;
+    }
+  }
+  return shadow / 9.0;
 }
 // ###########################################################################
 
@@ -125,12 +152,14 @@ void main()
 
   vec3 worldPos = worldPosFromDepth(depth);
 
+  float shadow = getShadowAttenuation(worldPos);
+
   vec3 V = normalize(worldCameraPos - worldPos);
   vec3 N = normalize(normal);
   vec3 L = normalize(-lightDirection);
   vec3 H = normalize(L + V);
 
-  vec3 irradiance = lightIntensity * sRGBToACES(lightColor) * dot(N, L);
+  vec3 irradiance = lightIntensity * sRGBToACES(lightColor) * dot(N, L) * shadow;
   vec3 radianceDirectionalLight = BRDF(albedo, metallic, roughness, N, V, L, H) * irradiance;
 
   outRadiance = emissive + radianceDirectionalLight;
