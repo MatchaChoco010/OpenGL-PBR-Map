@@ -252,7 +252,7 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
         if (line == "SpotLightEnd") break;
       }
 
-      scene->spot_lights_.emplace_back(position, intensity, color, range,
+      scene->spot_lights_.emplace_back(position, intensity, color, near, range,
                                        direction, angle, blend);
     }
   }

@@ -77,6 +77,12 @@ class MeshEntity {
   const glm::mat4 GetModelMatrix() const;
 
   /**
+   * @brief AABBと球体の当たり判定を計算する
+   * @return hitしていればtrue、そうでなければfalse
+   */
+  bool TestSphereAABB(const glm::vec3 center, const GLfloat radius) const;
+
+  /**
    * @brief コンストラクタ
    * @param mesh Meshのshared_ptr
    * @param material Materialのshared_ptr

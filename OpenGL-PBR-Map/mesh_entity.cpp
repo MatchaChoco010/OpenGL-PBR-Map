@@ -28,6 +28,19 @@ void MeshEntity::SetScale(const glm::vec3 scale) {
 
 const glm::mat4 MeshEntity::GetModelMatrix() const { return model_matrix_; }
 
+bool MeshEntity::TestSphereAABB(const glm::vec3 center,
+                                const GLfloat radius) const {
+  auto closest_point = center;
+  if (closest_point.x > x_max_) closest_point.x = x_max_;
+  if (closest_point.x < x_min_) closest_point.x = x_min_;
+  if (closest_point.y > y_max_) closest_point.y = y_max_;
+  if (closest_point.y < y_min_) closest_point.y = y_min_;
+  if (closest_point.z > z_max_) closest_point.z = z_max_;
+  if (closest_point.z < z_min_) closest_point.z = z_min_;
+  auto distance = glm::distance(closest_point, center);
+  return distance <= radius;
+}
+
 MeshEntity::MeshEntity(const std::shared_ptr<const Mesh> mesh,
                        const std::shared_ptr<const Material> material,
                        const glm::vec3 position, const glm::vec3 rotation,

@@ -57,6 +57,20 @@ class SpotLight {
   void SetColor(const glm::vec3 color);
 
   /**
+   * @brief スポットライトの影のnearを取得する
+   * @return スポットライトの影のnearの値
+   */
+  const GLfloat GetNear() const;
+
+  /**
+   * @brief スポットライトの影のnearの値を設定する
+   * @param near スポットライトの影の新しいnearの値
+   *
+   * 内部で保持する影行列の再計算が行われます。
+   */
+  void SetNear(const GLfloat near);
+
+  /**
    * @brief スポットライトのRangeを取得する
    * @return スポットライトのRange（m）
    */
@@ -120,6 +134,12 @@ class SpotLight {
   void SetBlend(const GLfloat blend);
 
   /**
+   * @brief 影行列を取得する
+   * @return 影行列
+   */
+  const glm::mat4 GetLightViewProjectionMatrix() const;
+
+  /**
    * @brief Model行列を取得する
    * @return Model行列
    *
@@ -132,13 +152,14 @@ class SpotLight {
    * @param position スポットライトの位置
    * @param intensity スポットライトの強さ（lm）
    * @param color スポットライトの色
+   * @param near スポットライトの影のnearの値
    * @param range スポットライトのRangeの値
    * @param direction スポットライトの向きのベクトル
    * @param angle スポットライトのAngle（radians）
    * @param blend スポットライトの半影の割合（[0,1]）
    */
   SpotLight(const glm::vec3 position, const GLfloat intensity,
-            const glm::vec3 color, const GLfloat range,
+            const glm::vec3 color, const GLfloat near, const GLfloat range,
             const glm::vec3 direction, const GLfloat angle,
             const GLfloat blend);
 
@@ -146,11 +167,21 @@ class SpotLight {
   glm::vec3 position_;
   GLfloat intensity_;
   glm::vec3 color_;
+  GLfloat near_;
   GLfloat range_;
   glm::vec3 direction_;
   GLfloat angle_;
   GLfloat blend_;
+  glm::mat4 light_view_projection_matrix_;
   glm::mat4 model_matrix_;
+
+  /**
+   * @brief 影行列を再計算する
+   *
+   * position_、direction_、range_、angle_から
+   * light_view_projection_matrix_を再計算します。
+   */
+  void RecaluculateLightViewProjectionMatrix();
 
   /**
    * @brief Model行列を再計算する

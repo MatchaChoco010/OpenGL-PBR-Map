@@ -4,6 +4,40 @@ namespace game {
 
 void SpotLightPass::Render(const Scene& scene) const {
   for (const SpotLight& spot_light : scene.spot_lights_) {
+    // Shadow Map Pass
+    glUseProgram(shadow_pass_shader_program_);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo_);
+
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glPolygonOffset(8.0f, 1.0f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
+    glViewport(0, 0, shadow_map_size_, shadow_map_size_);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    const glm::mat4 light_view_projection =
+        spot_light.GetLightViewProjectionMatrix();
+
+    for (const auto& mesh_entity : scene.mesh_entities_) {
+      if (!mesh_entity.TestSphereAABB(spot_light.GetPosition(),
+                                     spot_light.GetRange())) {
+        continue;
+      }
+
+      const glm::mat4 model_view_projection =
+          light_view_projection * mesh_entity.GetModelMatrix();
+
+      glUniformMatrix4fv(shadow_pass_model_view_projection_loc_, 1, GL_FALSE,
+                         &model_view_projection[0][0]);
+      mesh_entity.mesh_->Draw();
+    }
+
     // Stencil Pass
     glUseProgram(stencil_pass_shader_program_);
     glBindFramebuffer(GL_FRAMEBUFFER, hdr_color_fbo_);
@@ -75,6 +109,8 @@ void SpotLightPass::Render(const Scene& scene) const {
     glUniformMatrix4fv(view_projection_i_loc_, 1, GL_FALSE,
                        &view_projection_i[0][0]);
     glUniform2fv(projection_params_loc_, 1, &projection_params[0]);
+    glUniformMatrix4fv(light_view_projection_loc_, 1, GL_FALSE,
+                       &light_view_projection[0][0]);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gbuffer0_);
@@ -83,6 +119,8 @@ void SpotLightPass::Render(const Scene& scene) const {
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, gbuffer2_);
     glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, shadow_map_);
 
     glBindVertexArray(sphere_vao_);
     glDrawElements(GL_TRIANGLES, 8 * 8 * 6, GL_UNSIGNED_INT, 0);
@@ -97,16 +135,30 @@ SpotLightPass::SpotLightPass(const GLuint hdr_color_fbo, const GLuint gbuffer0,
                              const GLuint height)
     : width_(width),
       height_(height),
+
+      shadow_map_size_(512),
+
       hdr_color_fbo_(hdr_color_fbo),
       gbuffer0_(gbuffer0),
       gbuffer1_(gbuffer1),
       gbuffer2_(gbuffer2),
       sphere_vao_(sphere_vao),
+
+      shadow_map_(CreateShadowMap(shadow_map_size_)),
+      shadow_map_fbo_(CreateShadowMapFbo(shadow_map_)),
+
+      shadow_pass_shader_program_(
+          CreateProgram("shader/SpotLightShadowPass.vert",
+                        "shader/SpotLightShadowPass.frag")),
+      shadow_pass_model_view_projection_loc_(glGetUniformLocation(
+          shadow_pass_shader_program_, "ModelViewProjection")),
+
       stencil_pass_shader_program_(
           CreateProgram("shader/PunctualLightStencilPass.vert",
                         "shader/PunctualLightStencilPass.frag")),
       stencil_pass_model_view_projection_loc_(glGetUniformLocation(
           stencil_pass_shader_program_, "ModelViewProjection")),
+
       shader_program_(CreateProgram("shader/SpotLightPass.vert",
                                     "shader/SpotLightPass.frag")),
       model_view_projection_loc_(
@@ -126,11 +178,44 @@ SpotLightPass::SpotLightPass(const GLuint hdr_color_fbo, const GLuint gbuffer0,
       view_projection_i_loc_(
           glGetUniformLocation(shader_program_, "ViewProjectionI")),
       projection_params_loc_(
-          glGetUniformLocation(shader_program_, "ProjectionParams")) {}
+          glGetUniformLocation(shader_program_, "ProjectionParams")),
+      light_view_projection_loc_(
+          glGetUniformLocation(shader_program_, "LightViewProjection")) {}
 
 SpotLightPass::~SpotLightPass() {
+  glDeleteFramebuffers(1, &shadow_map_fbo_);
+  glDeleteTextures(1, &shadow_map_);
+
+  glDeleteProgram(shadow_pass_shader_program_);
   glDeleteProgram(stencil_pass_shader_program_);
   glDeleteProgram(shader_program_);
+}
+
+const GLuint SpotLightPass::CreateShadowMap(const GLuint shadow_map_size) {
+  GLuint shadow_map;
+  glGenTextures(1, &shadow_map);
+  glBindTexture(GL_TEXTURE_2D, shadow_map);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_map_size,
+               shadow_map_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE,
+                  GL_COMPARE_REF_TO_TEXTURE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  return shadow_map;
+}
+
+const GLuint SpotLightPass::CreateShadowMapFbo(const GLuint shadow_map) {
+  GLuint shadow_map_fbo;
+  glGenFramebuffers(1, &shadow_map_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+                         shadow_map, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return shadow_map_fbo;
 }
 
 }  // namespace game

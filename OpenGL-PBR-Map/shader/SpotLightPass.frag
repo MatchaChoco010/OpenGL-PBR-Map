@@ -5,6 +5,7 @@ layout (location = 0) out vec3 outRadiance;
 layout (binding = 0) uniform sampler2D GBuffer0;
 layout (binding = 1) uniform sampler2D GBuffer1;
 layout (binding = 2) uniform sampler2D GBuffer2;
+layout (binding = 3) uniform sampler2DShadow ShadowMap;
 
 uniform vec3 worldLightPosition;
 uniform float lightIntensity; // lm
@@ -17,6 +18,8 @@ uniform float lightBlend; // 0-1
 uniform vec3 worldCameraPos;
 uniform mat4 ViewProjectionI;
 uniform vec2 ProjectionParams; // x: near, y: far
+
+uniform mat4 LightViewProjection;
 
 
 const float PI = 3.14159265358979323846;
@@ -76,6 +79,30 @@ float AngleAttenuation(vec3 L)
 vec3 LightIrradiance(float intensity, vec3 color, vec3 L, vec3 N, float distance)
 {
   return 1.0 / PI * intensity * color * max(0, dot(L, N)) * DistanceAttenuation(distance) * AngleAttenuation(L);
+}
+// #############################################################################
+
+
+// 3x3 PCF Shadow ##############################################################
+float getShadowAttenuation(vec3 worldPos)
+{
+  vec4 lightPos = LightViewProjection * vec4(worldPos, 1.0);
+  vec2 uv = lightPos.xy / lightPos.w * vec2(0.5) + vec2(0.5);
+  float depthFromWorldPos = (lightPos.z / lightPos.w) * 0.5 + 0.5;
+
+  ivec2 shadowMapSize = textureSize(ShadowMap, 0);
+  vec2 offset = 1.0 / shadowMapSize.xy;
+
+  float shadow = 0.0;
+  for (int i = -1; i <= 1; i++)
+  {
+    for (int j = -1; j <= 1; j++)
+    {
+      vec3 UVC = vec3(uv + offset * vec2(i, j), depthFromWorldPos + 0.00001);
+      shadow += texture(ShadowMap, UVC).x;
+    }
+  }
+  return shadow / 9.0;
 }
 // #############################################################################
 
@@ -167,13 +194,15 @@ void main()
 
   vec3 worldPos = worldPosFromDepth(depth, uv);
 
+  float shadow = getShadowAttenuation(worldPos);
+
   vec3 V = normalize(worldCameraPos - worldPos);
   vec3 N = normalize(normal);
   vec3 L = normalize(worldLightPosition - worldPos);
   vec3 H = normalize(L + V);
 
   float distance = length(worldLightPosition - worldPos);
-  vec3 irradiance = LightIrradiance(lightIntensity, sRGBToACES(lightColor), L, N, distance);
+  vec3 irradiance = LightIrradiance(lightIntensity, sRGBToACES(lightColor), L, N, distance) * shadow;
 
   outRadiance = BRDF(albedo, metallic, roughness, N, V, L, H) * irradiance;
 }
