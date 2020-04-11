@@ -8827,7 +8827,7 @@ Intensity: 546401.6
 Color: 0.0 0.8503396511077881 1.0
 Range: 15.0
 ClipStart: 0.05000000074505806
-ShadowBias: 1.0
+ShadowBias: 0.009999999776482582
 UseShadow: 1
 PointLightEnd
 PointLight: Point.001
@@ -8836,7 +8836,7 @@ Intensity: 546401.6
 Color: 0.006186542101204395 1.0 0.0
 Range: 15.0
 ClipStart: 0.05000000074505806
-ShadowBias: 1.0
+ShadowBias: 0.009999999776482582
 UseShadow: 1
 PointLightEnd
 SpotLight: Spot

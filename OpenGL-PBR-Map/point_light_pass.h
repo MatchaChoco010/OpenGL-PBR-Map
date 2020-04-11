@@ -51,11 +51,22 @@ class PointLightPass {
   const GLuint width_;
   const GLuint height_;
 
+  const GLuint shadow_map_size_;
+
   const GLuint hdr_fbo_;
   const GLuint gbuffer0_;
   const GLuint gbuffer1_;
   const GLuint gbuffer2_;
   const GLuint sphere_vao_;
+
+  const GLuint shadow_map_;
+  const GLuint shadow_map_fbo_;
+
+  const GLuint shadow_pass_shader_program_;
+  const GLuint shadow_pass_model_loc_;
+  const GLuint shadow_pass_light_view_projection_matrices_loc_;
+  const GLuint shadow_pass_world_light_pos_loc_;
+  const GLuint shadow_pass_range_loc_;
 
   const GLuint stencil_pass_shader_program_;
   const GLuint stencil_pass_model_view_projection_loc_;
@@ -69,6 +80,21 @@ class PointLightPass {
   const GLuint world_camera_pos_loc_;
   const GLuint view_projection_i_loc_;
   const GLuint projection_params_loc_;
+  const GLuint shadow_bias_loc_;
+  const GLuint use_shadow_loc_;
+
+  /**
+   * @brief シャドウマップテクスチャを作成する
+   * @return 生成したテクスチャのID
+   */
+  static const GLuint CreateShadowMap(const GLuint shadow_map_size);
+
+  /**
+   * @brief シャドウマップのFBOを生成する
+   * @param shadow_map シャドウマップテクスチャのID
+   * @return 生成したFBOのID
+   */
+  static const GLuint CreateShadowMapFbo(const GLuint shadow_map);
 };
 
 }  // namespace game

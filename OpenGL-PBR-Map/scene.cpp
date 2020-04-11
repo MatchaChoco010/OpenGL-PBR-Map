@@ -205,13 +205,14 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
         } else if (texts[0] == "ShadowBias:") {
           shadow_bias = std::stof(texts[1]);
         } else if (texts[0] == "UseShadow:") {
-          shadow_bias = std::stoi(texts[1]) == 1;
+          use_shadow = std::stoi(texts[1]) == 1;
         }
 
         if (line == "PointLightEnd") break;
       }
 
-      scene->point_lights_.emplace_back(position, intensity, color, range);
+      scene->point_lights_.emplace_back(position, intensity, color, near, range,
+                                        shadow_bias, use_shadow);
     }
 
     // Spot Light

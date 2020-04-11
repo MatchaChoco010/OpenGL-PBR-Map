@@ -59,6 +59,20 @@ class PointLight {
   void SetColor(const glm::vec3 color);
 
   /**
+   * @brief ポイントライトの影のnearを取得する
+   * @return ポイントライトの影のnearの値
+   */
+  const GLfloat GetNear() const;
+
+  /**
+   * @brief ポイントライトの影のnearの値を設定する
+   * @param near ポイントライトの影の新しいnearの値
+   *
+   * 内部で保持する影行列の再計算が行われます。
+   */
+  void SetNear(const GLfloat near);
+
+  /**
    * @brief ポイントライトのRangeを取得する
    * @return ポイントライトのRange（m）
    */
@@ -69,6 +83,40 @@ class PointLight {
    * @param range ポイントライトの新しいRange（m）
    */
   void SetRange(const GLfloat range);
+
+  /**
+   * @brief ポイントライトのShadow Biasを取得する
+   * @return ポイントライトのShadow Bias
+   */
+  const GLfloat GetShadowBias() const;
+
+  /**
+   * @brief ポイントライトのShadow Biasを設定する
+   * @param shadow_bias ポイントライトの新しいShadow Bias
+   */
+  void SetShadowBias(const GLfloat shadow_bias);
+
+  /**
+   * @brief ポイントライトが影を利用するかどうかを取得する
+   * @return ポイントライトが影を利用するかどうか
+   */
+  const bool GetUseShadow() const;
+
+  /**
+   * @brief ポイントライトが影を利用するかどうかを設定する
+   * @param use_shadow ポイントライトが影を利用するかどうか
+   */
+
+  void SetUseShadow(const bool use_shadow);
+
+  /**
+   * @brief ポイントライトの影行列の列を返す
+   * @param[out] light_view_projection_matrices ポイントライトの影行列
+   *
+   * 影行列の列はPosX、NegX、PosY、NegY、PosZ、NegZの順です。
+   */
+  void GetLightViewProjectionMatrices(
+      glm::mat4 light_view_projection_matrices[6]) const;
 
   /**
    * @brief ポイントライトのModel行列を取得する
@@ -83,17 +131,32 @@ class PointLight {
    * @param position ポイントライトの位置
    * @param intensity ポイントライトの強さ（lx）
    * @param color ポイントライトの色
+   * @param near ポイントライトの影のnearの値
    * @param range ポイントライトのRange（m）
+   * @param shadow_bias ポイントライトのShadow Bias
+   * @param use_shadow ポイントライトが影を利用するかどうか
    */
   PointLight(const glm::vec3 position, const GLfloat intensity,
-             const glm::vec3 color, const GLfloat range);
+             const glm::vec3 color, const GLfloat near, const GLfloat range,
+             const GLfloat shadow_bias, const bool use_shadow);
 
  private:
   glm::vec3 position_;
   GLfloat intensity_;
   glm::vec3 color_;
+  GLfloat near_;
   GLfloat range_;
+  GLfloat shadow_bias_;
+  bool use_shadow_;
+  glm::mat4 light_view_projection_matrices_[6];
   glm::mat4 model_matrix_;
+
+  /**
+   * @brief 影行列の列を再計算する
+   *
+   * position_、range_からshadow_matrices_を再計算します。
+   */
+  void RecaluculateLightViewProjectionMatrices();
 
   /**
    * @brief Model行列を再計算する

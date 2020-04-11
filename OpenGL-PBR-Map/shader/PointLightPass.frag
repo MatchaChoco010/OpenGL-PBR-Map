@@ -5,6 +5,7 @@ layout (location = 0) out vec3 outRadiance;
 layout (binding = 0) uniform sampler2D GBuffer0;
 layout (binding = 1) uniform sampler2D GBuffer1;
 layout (binding = 2) uniform sampler2D GBuffer2;
+layout (binding = 3) uniform samplerCubeShadow ShadowMap;
 
 uniform vec3 worldLightPosition;
 uniform float lightIntensity; // lm
@@ -14,6 +15,9 @@ uniform float lightRange;
 uniform vec3 worldCameraPos;
 uniform mat4 ViewProjectionI;
 uniform vec2 ProjectionParams; // x: near, y: far
+
+uniform float shadowBias;
+uniform bool useShadow;
 
 
 const float PI = 3.14159265358979323846;
@@ -61,6 +65,16 @@ float DistanceAttenuation(float distance)
 vec3 LightIrradiance(float intensity, vec3 color, vec3 L, vec3 N, float distance)
 {
   return 1.0 / (4.0 * PI) * intensity * color * max(0, dot(L, N)) * DistanceAttenuation(distance);
+}
+// #############################################################################
+
+
+// shadow ######################################################################
+float getShadowAttenuation(vec3 worldPos)
+{
+  vec3 lightToFragVec = worldPos - worldLightPosition;
+  float depth = length(lightToFragVec) / lightRange;
+  return texture(ShadowMap, vec4(lightToFragVec, depth - shadowBias)).x;
 }
 // #############################################################################
 
@@ -152,13 +166,15 @@ void main()
 
   vec3 worldPos = worldPosFromDepth(depth, uv);
 
+  float shadow = useShadow ? getShadowAttenuation(worldPos) : 1;
+
   vec3 V = normalize(worldCameraPos - worldPos);
   vec3 N = normalize(normal);
   vec3 L = normalize(worldLightPosition - worldPos);
   vec3 H = normalize(L + V);
 
   float distance = length(worldLightPosition - worldPos);
-  vec3 irradiance = LightIrradiance(lightIntensity, sRGBToACES(lightColor), L, N, distance);
+  vec3 irradiance = LightIrradiance(lightIntensity, sRGBToACES(lightColor), L, N, distance) * shadow;
 
   outRadiance = BRDF(albedo, metallic, roughness, N, V, L, H) * irradiance;
 }
