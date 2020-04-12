@@ -11,6 +11,7 @@
 #include "geometry_pass.h"
 #include "point_light_pass.h"
 #include "scene.h"
+#include "sky_pass.h"
 #include "spot_light_pass.h"
 #include "tonemapping_pass.h"
 
@@ -76,6 +77,7 @@ class SceneRenderer {
   const GLuint exposured_fbo_;
 
   GeometryPass geometry_pass_;
+  SkyPass sky_pass_;
   DirectionalLightPass directional_light_pass_;
   PointLightPass point_light_pass_;
   SpotLightPass spot_light_pass_;

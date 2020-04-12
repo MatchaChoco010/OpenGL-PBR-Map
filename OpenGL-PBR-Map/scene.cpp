@@ -256,6 +256,29 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
       scene->spot_lights_.emplace_back(position, intensity, color, near, range,
                                        direction, angle, blend);
     }
+
+    // Sky
+    else if (texts[0] == "Sky:") {
+      std::string sky_image_path;
+      GLfloat sky_intensity;
+      while (std::getline(ifs, line)) {
+        auto texts = SplitString(line, ' ');
+
+        if (texts[0] == "SkyImagePath:") {
+         sky_image_path = path + "/" + texts[1];
+        }
+
+        if (texts[0] == "skyIntensity:") {
+          sky_intensity = std::stof(texts[1]);
+        }
+
+        if (line == "SkyEnd") break;
+      }
+
+      scene->sky_texture_ =
+          std::make_unique<ExrTexture>(sky_image_path);
+      scene->sky_intensity_ = sky_intensity;
+    }
   }
 
   scene->RecaluculateDirectionalShadowVolume();

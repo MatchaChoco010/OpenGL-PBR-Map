@@ -35,6 +35,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
         directional_light = ""
         point_lights = []
         spot_lights = []
+        sky = ""
 
         # Meshes
         for obj in scene_collection.all_objects:
@@ -291,6 +292,22 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
                 spot_light_text += "SpotLightEnd\n"
                 spot_lights.append(spot_light_text)
 
+        # Sky
+        sky_image = bpy.data.worlds["World"].node_tree.nodes["Environment Texture"].image
+        os.makedirs(os.path.join(self.filepath, "Sky"))
+        sky_ext = os.path.splitext(sky_image.filepath)[1]
+        if sky_ext != ".exr":
+            raise Exception("Environment Texture must be .exr format.")
+        shutil.copy2(
+            bpy.path.abspath(sky_image.filepath),
+            os.path.join(self.filepath, "Sky", "sky.exr")
+        )
+        sky_intensity = bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[1].default_value * 683.002
+        sky += "Sky:\n"
+        sky += "SkyImagePath: Sky/sky.exr\n"
+        sky += "skyIntensity: {0}\n".format(sky_intensity)
+        sky += "SkyEnd\n"
+
         scene_text = "# Scene file\n"
         for mesh_text in meshes_dict.values():
             scene_text += mesh_text
@@ -303,6 +320,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
             scene_text += point_light
         for spot_light in spot_lights:
             scene_text += spot_light
+        scene_text += sky
 
         with open(os.path.join(self.filepath, "scenefile.txt"), mode="w") as f:
             f.write(scene_text)

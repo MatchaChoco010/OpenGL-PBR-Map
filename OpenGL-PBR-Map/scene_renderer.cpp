@@ -11,6 +11,8 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
   glBlitFramebuffer(0, 0, width_, height_, 0, 0, width_, height_,
                     GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 
+  sky_pass_.Render(scene);
+
   directional_light_pass_.Render(scene);
 
   point_light_pass_.Render(scene);
@@ -52,6 +54,7 @@ SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
       exposured_fbo_(CreateExposuredFbo(exposured_color_buffer_)),
 
       geometry_pass_(gbuffer_fbo_),
+      sky_pass_(hdr_fbo_, fullscreen_mesh_vao_, width_, height_),
       directional_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_,
                               fullscreen_mesh_vao_, width, height),
       point_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_, sphere_vao_,

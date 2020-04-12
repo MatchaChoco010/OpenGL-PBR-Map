@@ -8849,3 +8849,7 @@ ClipStart: 0.05000000074505806
 Angle: 0.5759586691856384
 Blend: 0.15000000596046448
 SpotLightEnd
+Sky:
+SkyImagePath: Sky/sky.exr
+skyIntensity: 683.002
+SkyEnd

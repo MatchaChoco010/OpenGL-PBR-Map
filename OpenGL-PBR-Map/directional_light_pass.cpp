@@ -46,8 +46,6 @@ void DirectionalLightPass::Render(const Scene& scene) const {
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, shadow_map_);
 
-  glClear(GL_COLOR_BUFFER_BIT);
-
   glStencilFunc(GL_EQUAL, 128, 128);
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
   glStencilMask(0);

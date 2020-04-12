@@ -58,6 +58,18 @@ class Camera {
   const GLfloat GetFar() const;
 
   /**
+   * @brief カメラのfovyを取得する
+   * @return カメラのfovyの値
+   */
+  const GLfloat GetFovY() const;
+
+  /**
+   * @brief カメラのアスペクト比を取得する
+   * @return カメラのアスペクト比の値
+   */
+  const GLfloat GetAspect() const;
+
+  /**
    * @brief カメラのProjection行列のパラメータを設定する
    * @param fovy fovyの値（radians）
    * @param aspect aspectの値
@@ -88,6 +100,12 @@ class Camera {
   const glm::mat4 GetProjectionMatrix() const;
 
   /**
+   * @brief カメラの回転行列を取得する
+   * @return カメラの回転行列
+   */
+  const glm::mat4 GetRotationMatrix() const;
+
+  /**
    * @brief コンストラクタ
    * @param position カメラの位置
    * @param rotation カメラの回転のオイラー角
@@ -105,10 +123,13 @@ class Camera {
  private:
   GLfloat near_;
   GLfloat far_;
+  GLfloat fovy_;
+  GLfloat aspect_;
   glm::vec3 position_;
   glm::vec3 rotation_;
   glm::mat4 view_matrix_;
   glm::mat4 projection_matrix_;
+  glm::mat4 rotation_matrix_;
 
   /**
    * @brief View行列を再計算する

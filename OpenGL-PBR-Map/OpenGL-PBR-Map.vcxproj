@@ -74,7 +74,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(SolutionDir)vendors\tinyexr\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)vendors\glfw\lib-vc2019\;$(SolutionDir)vendors\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendors\glfw\include\;$(SolutionDir)vendors\glew\include\;$(SolutionDir)vendors\glm\;$(SolutionDir)vendors\stb\;$(SolutionDir)vendors\tinyexr\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)vendors\glfw\lib-vc2019\;$(SolutionDir)vendors\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -154,6 +154,7 @@
     <ClCompile Include="directional_light.cpp" />
     <ClCompile Include="directional_light_pass.cpp" />
     <ClCompile Include="exposure_pass.cpp" />
+    <ClCompile Include="exr_texture.cpp" />
     <ClCompile Include="geometry_pass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="point_light_pass.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
+    <ClCompile Include="sky_pass.cpp" />
     <ClCompile Include="spot_light.cpp" />
     <ClCompile Include="spot_light_pass.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="directional_light.h" />
     <ClInclude Include="directional_light_pass.h" />
     <ClInclude Include="exposure_pass.h" />
+    <ClInclude Include="exr_texture.h" />
     <ClInclude Include="geometry_pass.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
@@ -183,6 +186,7 @@
     <ClInclude Include="point_light_pass.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_renderer.h" />
+    <ClInclude Include="sky_pass.h" />
     <ClInclude Include="spot_light.h" />
     <ClInclude Include="spot_light_pass.h" />
     <ClInclude Include="texture.h" />
