@@ -9,6 +9,8 @@
 #include "directional_light_pass.h"
 #include "exposure_pass.h"
 #include "geometry_pass.h"
+#include "log_average_pass.h"
+#include "physically_based_camera.h"
 #include "point_light_pass.h"
 #include "scene.h"
 #include "sky_pass.h"
@@ -32,6 +34,12 @@ class SceneRenderer {
    * @param delta_time 前フレームからの時間（秒）
    */
   void Render(const Scene& scene, const double delta_time);
+
+  /**
+   * @brief EVcompの値を設定する
+   * @param ev_comp 新しいEVcompの値
+   */
+  void SetEvComp(const GLfloat ev_comp);
 
   /**
    * @brief コンストラクタ
@@ -81,8 +89,11 @@ class SceneRenderer {
   DirectionalLightPass directional_light_pass_;
   PointLightPass point_light_pass_;
   SpotLightPass spot_light_pass_;
+  LogAveragePass log_average_pass_;
   ExposurePass exposure_pass_;
   TonemappingPass tonemapping_pass_;
+
+  PhysicallyBasedCamera physically_based_camera_;
 
   /**
    * @brief リソースの開放をする

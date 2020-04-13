@@ -47,6 +47,7 @@ bool Application::Init() {
 
   // SceneRendererの作成
   scene_renderer_ = std::make_unique<SceneRenderer>(width, height);
+  scene_renderer_->SetEvComp(-3.0f);
 
   return true;
 }

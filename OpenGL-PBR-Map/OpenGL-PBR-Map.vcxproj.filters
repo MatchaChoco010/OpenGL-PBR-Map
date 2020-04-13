@@ -90,6 +90,12 @@
     <ClCompile Include="sky_pass.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
+    <ClCompile Include="log_average_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="physically_based_camera.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -150,6 +156,12 @@
       <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="sky_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="log_average_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="physically_based_camera.h">
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
   </ItemGroup>

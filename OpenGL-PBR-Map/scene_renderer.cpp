@@ -19,10 +19,20 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
 
   spot_light_pass_.Render(scene);
 
-  exposure_pass_.SetExposure(0.001f);
+  log_average_pass_.Render();
+  const auto l_average = log_average_pass_.GetLLogAverage();
+
+  physically_based_camera_.Update(l_average, delta_time);
+  const auto exposure = physically_based_camera_.GetExposure();
+
+  exposure_pass_.SetExposure(exposure);
   exposure_pass_.Render();
 
   tonemapping_pass_.Render();
+}
+
+void SceneRenderer::SetEvComp(const GLfloat ev_comp) {
+  physically_based_camera_.SetEvComp(ev_comp);
 }
 
 SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
@@ -61,10 +71,13 @@ SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
                         width, height),
       spot_light_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_, sphere_vao_,
                        width, height),
+      log_average_pass_(hdr_color_buffer_, fullscreen_mesh_vao_, width, height),
       exposure_pass_(hdr_color_buffer_, exposured_fbo_, fullscreen_mesh_vao_,
                      width, height),
       tonemapping_pass_(exposured_color_buffer_, fullscreen_mesh_vao_, width,
-                        height) {}
+                        height),
+
+      physically_based_camera_(0, 0) {}
 
 SceneRenderer::~SceneRenderer() { Release(); }
 

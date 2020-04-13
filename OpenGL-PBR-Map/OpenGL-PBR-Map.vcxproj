@@ -156,10 +156,12 @@
     <ClCompile Include="exposure_pass.cpp" />
     <ClCompile Include="exr_texture.cpp" />
     <ClCompile Include="geometry_pass.cpp" />
+    <ClCompile Include="log_average_pass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="mesh_entity.cpp" />
+    <ClCompile Include="physically_based_camera.cpp" />
     <ClCompile Include="point_light.cpp" />
     <ClCompile Include="point_light_pass.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -179,9 +181,11 @@
     <ClInclude Include="exposure_pass.h" />
     <ClInclude Include="exr_texture.h" />
     <ClInclude Include="geometry_pass.h" />
+    <ClInclude Include="log_average_pass.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="mesh_entity.h" />
+    <ClInclude Include="physically_based_camera.h" />
     <ClInclude Include="point_light.h" />
     <ClInclude Include="point_light_pass.h" />
     <ClInclude Include="scene.h" />
