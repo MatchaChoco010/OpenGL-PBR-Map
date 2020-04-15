@@ -151,6 +151,7 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="create_program.cpp" />
+    <ClCompile Include="diffuse_ibl_pass.cpp" />
     <ClCompile Include="directional_light.cpp" />
     <ClCompile Include="directional_light_pass.cpp" />
     <ClCompile Include="exposure_pass.cpp" />
@@ -176,9 +177,11 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="create_program.h" />
+    <ClInclude Include="diffuse_ibl_pass.h" />
     <ClInclude Include="directional_light.h" />
     <ClInclude Include="directional_light_pass.h" />
     <ClInclude Include="exposure_pass.h" />
+    <ClInclude Include="exr_cubemap_texture.h" />
     <ClInclude Include="exr_texture.h" />
     <ClInclude Include="geometry_pass.h" />
     <ClInclude Include="log_average_pass.h" />

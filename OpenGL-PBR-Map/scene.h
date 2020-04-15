@@ -10,11 +10,12 @@
 
 #include "camera.h"
 #include "directional_light.h"
+#include "exr_cubemap_texture.h"
+#include "exr_texture.h"
 #include "mesh.h"
 #include "mesh_entity.h"
 #include "point_light.h"
 #include "spot_light.h"
-#include "exr_texture.h"
 
 namespace game {
 
@@ -27,6 +28,7 @@ class Scene {
   std::vector<SpotLight> spot_lights_;
   std::unique_ptr<ExrTexture> sky_texture_;
   GLfloat sky_intensity_;
+  std::unique_ptr<ExrCubemapTexture> global_diffuse_ibl_texture_;
 
   /**
    * @brief 影ボリュームを再計算する

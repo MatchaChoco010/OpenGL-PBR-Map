@@ -22,6 +22,9 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
         return "Scene" in bpy.data.collections
 
     def execute(self, context):
+        pwd = os.getcwd()
+        os.chdir(os.path.dirname(__file__))
+
         print(self.filepath)
         if os.path.exists(self.filepath):
             raise Exception("Already exists {0}".format(self.filepath))
@@ -308,6 +311,13 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
         sky += "skyIntensity: {0}\n".format(sky_intensity)
         sky += "SkyEnd\n"
 
+        # Global Diffuse IBL
+        os.makedirs(os.path.join(self.filepath, "GlobalIBL", "Diffuse"))
+        srcpath = os.path.join(self.filepath, "Sky", "sky.exr")
+        dstpath = os.path.join(self.filepath, "GlobalIBL", "Diffuse")
+        subprocess.call(["IBL-Diffuse.exe", srcpath,
+                         str(sky_intensity), dstpath])
+
         scene_text = "# Scene file\n"
         for mesh_text in meshes_dict.values():
             scene_text += mesh_text
@@ -324,5 +334,7 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
 
         with open(os.path.join(self.filepath, "scenefile.txt"), mode="w") as f:
             f.write(scene_text)
+
+        os.chdir(pwd)
 
         return {"FINISHED"}

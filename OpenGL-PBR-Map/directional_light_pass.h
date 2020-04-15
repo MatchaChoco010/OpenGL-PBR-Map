@@ -29,7 +29,7 @@ class DirectionalLightPass {
 
   /**
    * @brief コンストラクタ
-   * @param hdr_color_fbo HDRのフレームバッファオブジェクト
+   * @param hdr_fbo HDRのフレームバッファオブジェクト
    * @param gbuffer0 GBuffer0のテクスチャID
    * @param gbuffer1 GBuffer1のテクスチャID
    * @param gbuffer2 GBuffer2のテクスチャID

@@ -6,6 +6,7 @@
 
 #include <array>
 
+#include "diffuse_ibl_pass.h"
 #include "directional_light_pass.h"
 #include "exposure_pass.h"
 #include "geometry_pass.h"
@@ -89,6 +90,7 @@ class SceneRenderer {
   DirectionalLightPass directional_light_pass_;
   PointLightPass point_light_pass_;
   SpotLightPass spot_light_pass_;
+  DiffuseIblPass diffuse_ibl_pass_;
   LogAveragePass log_average_pass_;
   ExposurePass exposure_pass_;
   TonemappingPass tonemapping_pass_;

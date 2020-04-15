@@ -73,9 +73,9 @@ void MeshEntity::RecaluculateAABB() {
       glm::vec3(mesh_->x_max_, mesh_->y_max_, mesh_->z_min_),
       glm::vec3(mesh_->x_max_, mesh_->y_max_, mesh_->z_max_),
   };
-  x_max_ = std::numeric_limits<float>::min();
-  y_max_ = std::numeric_limits<float>::min();
-  z_max_ = std::numeric_limits<float>::min();
+  x_max_ = std::numeric_limits<float>::lowest();
+  y_max_ = std::numeric_limits<float>::lowest();
+  z_max_ = std::numeric_limits<float>::lowest();
   x_min_ = std::numeric_limits<float>::max();
   y_min_ = std::numeric_limits<float>::max();
   z_min_ = std::numeric_limits<float>::max();

@@ -3,9 +3,9 @@
 namespace game {
 
 void Scene::RecaluculateDirectionalShadowVolume() {
-  auto x_max = std::numeric_limits<float>::min();
-  auto y_max = std::numeric_limits<float>::min();
-  auto z_max = std::numeric_limits<float>::min();
+  auto x_max = std::numeric_limits<float>::lowest();
+  auto y_max = std::numeric_limits<float>::lowest();
+  auto z_max = std::numeric_limits<float>::lowest();
   auto x_min = std::numeric_limits<float>::max();
   auto y_min = std::numeric_limits<float>::max();
   auto z_min = std::numeric_limits<float>::max();
@@ -21,9 +21,9 @@ void Scene::RecaluculateDirectionalShadowVolume() {
   auto dir = glm::normalize(directional_light_->GetDirection());
   auto rot = glm::toMat4(glm::rotation(dir, glm::vec3(0.0f, 0.0f, -1.0f)));
 
-  auto x_max_rotated = std::numeric_limits<float>::min();
-  auto y_max_rotated = std::numeric_limits<float>::min();
-  auto z_max_rotated = std::numeric_limits<float>::min();
+  auto x_max_rotated = std::numeric_limits<float>::lowest();
+  auto y_max_rotated = std::numeric_limits<float>::lowest();
+  auto z_max_rotated = std::numeric_limits<float>::lowest();
   auto x_min_rotated = std::numeric_limits<float>::max();
   auto y_min_rotated = std::numeric_limits<float>::max();
   auto z_min_rotated = std::numeric_limits<float>::max();
@@ -71,6 +71,10 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
 
   std::unordered_map<std::string, std::shared_ptr<Mesh>> tmp_mesh_map;
   std::unordered_map<std::string, std::shared_ptr<Material>> tmp_material_map;
+
+  // Global Diffuse IBL Texture
+  scene->global_diffuse_ibl_texture_ =
+      std::make_unique<ExrCubemapTexture>(path + "/GlobalIBL/Diffuse");
 
   while (std::getline(ifs, line)) {
     auto texts = SplitString(line, ' ');
@@ -265,7 +269,7 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
         auto texts = SplitString(line, ' ');
 
         if (texts[0] == "SkyImagePath:") {
-         sky_image_path = path + "/" + texts[1];
+          sky_image_path = path + "/" + texts[1];
         }
 
         if (texts[0] == "skyIntensity:") {
@@ -275,8 +279,7 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
         if (line == "SkyEnd") break;
       }
 
-      scene->sky_texture_ =
-          std::make_unique<ExrTexture>(sky_image_path);
+      scene->sky_texture_ = std::make_unique<ExrTexture>(sky_image_path);
       scene->sky_intensity_ = sky_intensity;
     }
   }
