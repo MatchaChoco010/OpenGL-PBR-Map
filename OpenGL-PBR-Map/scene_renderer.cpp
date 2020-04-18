@@ -21,6 +21,8 @@ void SceneRenderer::Render(const Scene& scene, const double delta_time) {
 
   diffuse_ibl_pass_.Render(scene);
 
+  specular_ibl_pass_.Render(scene);
+
   log_average_pass_.Render();
   const auto l_average = log_average_pass_.GetLLogAverage();
 
@@ -75,6 +77,8 @@ SceneRenderer::SceneRenderer(const GLuint width, const GLuint height)
                        width, height),
       diffuse_ibl_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_,
                         fullscreen_mesh_vao_),
+      specular_ibl_pass_(hdr_fbo_, gbuffer0_, gbuffer1_, gbuffer2_,
+                         fullscreen_mesh_vao_),
       log_average_pass_(hdr_color_buffer_, fullscreen_mesh_vao_, width, height),
       exposure_pass_(hdr_color_buffer_, exposured_fbo_, fullscreen_mesh_vao_,
                      width, height),

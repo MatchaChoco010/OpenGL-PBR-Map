@@ -318,6 +318,13 @@ class ScenefileExporter(bpy.types.Operator, ExportHelper):
         subprocess.call(["IBL-Diffuse.exe", srcpath,
                          str(sky_intensity), dstpath])
 
+        # Global Specular IBL
+        os.makedirs(os.path.join(self.filepath, "GlobalIBL", "Specular"))
+        srcpath = os.path.join(self.filepath, "Sky", "sky.exr")
+        dstpath = os.path.join(self.filepath, "GlobalIBL", "Specular")
+        subprocess.call(["IBL-Specular.exe", srcpath,
+                         str(sky_intensity), dstpath])
+
         scene_text = "# Scene file\n"
         for mesh_text in meshes_dict.values():
             scene_text += mesh_text

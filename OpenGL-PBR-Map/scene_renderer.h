@@ -15,6 +15,7 @@
 #include "point_light_pass.h"
 #include "scene.h"
 #include "sky_pass.h"
+#include "specular_ibl_pass.h"
 #include "spot_light_pass.h"
 #include "tonemapping_pass.h"
 
@@ -91,6 +92,7 @@ class SceneRenderer {
   PointLightPass point_light_pass_;
   SpotLightPass spot_light_pass_;
   DiffuseIblPass diffuse_ibl_pass_;
+  SpecularIblPass specular_ibl_pass_;
   LogAveragePass log_average_pass_;
   ExposurePass exposure_pass_;
   TonemappingPass tonemapping_pass_;

@@ -168,6 +168,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="sky_pass.cpp" />
+    <ClCompile Include="specular_ibl_pass.cpp" />
     <ClCompile Include="spot_light.cpp" />
     <ClCompile Include="spot_light_pass.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -194,6 +195,8 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_renderer.h" />
     <ClInclude Include="sky_pass.h" />
+    <ClInclude Include="specular_ibl_exr_cubemap_texture.h" />
+    <ClInclude Include="specular_ibl_pass.h" />
     <ClInclude Include="spot_light.h" />
     <ClInclude Include="spot_light_pass.h" />
     <ClInclude Include="texture.h" />

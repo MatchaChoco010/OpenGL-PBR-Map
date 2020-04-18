@@ -99,6 +99,9 @@
     <ClCompile Include="diffuse_ibl_pass.cpp">
       <Filter>ソース ファイル\scene_renderer</Filter>
     </ClCompile>
+    <ClCompile Include="specular_ibl_pass.cpp">
+      <Filter>ソース ファイル\scene_renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -171,6 +174,12 @@
       <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="diffuse_ibl_pass.h">
+      <Filter>ヘッダー ファイル\scene_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="specular_ibl_exr_cubemap_texture.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="specular_ibl_pass.h">
       <Filter>ヘッダー ファイル\scene_renderer</Filter>
     </ClInclude>
   </ItemGroup>

@@ -38,23 +38,23 @@ bool Application::Init() {
   }
 
   // Sceneの読み込み
-  // scene_ = Scene::LoadScene("SceneFile.scenefile", width, height);
-  // scene_->camera_ = std::make_unique<Camera>(
-  //    glm::vec3(-1.37508f, 7.96885f, 21.19848),
-  //    glm::vec3(glm::radians(73.2f - 90.0f), glm::radians(-4.61f),
-  //              -glm::radians(-0.000004f)),
-  //    glm::radians(30.0f), static_cast<GLfloat>(width) / height, 0.1f,
-  //    150.0f);
-  scene_ = Scene::LoadScene("test-ibl.scenefile", width, height);
-  scene_->camera_ = std::make_unique<Camera>(
+   scene_ = Scene::LoadScene("SceneFile.scenefile", width, height);
+   scene_->camera_ = std::make_unique<Camera>(
       glm::vec3(-1.37508f, 7.96885f, 21.19848),
       glm::vec3(glm::radians(73.2f - 90.0f), glm::radians(-4.61f),
                 -glm::radians(-0.000004f)),
-      glm::radians(30.0f), static_cast<GLfloat>(width) / height, 0.1f, 150.0f);
+      glm::radians(30.0f), static_cast<GLfloat>(width) / height, 0.1f,
+      150.0f);
+  //scene_ = Scene::LoadScene("test-ibl.scenefile", width, height);
+  //scene_->camera_ = std::make_unique<Camera>(
+  //    glm::vec3(-1.37508f, 7.96885f, 21.19848),
+  //    glm::vec3(glm::radians(73.2f - 90.0f), glm::radians(-4.61f),
+  //              -glm::radians(-0.000004f)),
+  //    glm::radians(30.0f), static_cast<GLfloat>(width) / height, 0.1f, 150.0f);
 
   // SceneRendererの作成
   scene_renderer_ = std::make_unique<SceneRenderer>(width, height);
-  scene_renderer_->SetEvComp(0.0f);
+  scene_renderer_->SetEvComp(-1.0f);
 
   return true;
 }
@@ -107,6 +107,7 @@ bool Application::InitWindow(const GLuint width, const GLuint height) {
       0);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); 
 
   return true;
 }

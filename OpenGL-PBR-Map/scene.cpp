@@ -76,6 +76,13 @@ std::unique_ptr<Scene> Scene::LoadScene(const std::string path,
   scene->global_diffuse_ibl_texture_ =
       std::make_unique<ExrCubemapTexture>(path + "/GlobalIBL/Diffuse");
 
+  // Global Specular IBL Texture
+  scene->global_specular_ibl_texture_ =
+      std::make_unique<SpecularIblExrCubemapTexture>(path +
+                                                     "/GlobalIBL/Specular");
+  scene->specular_ibl_lut_texture_ =
+      std::make_unique<ExrTexture>(path + "/GlobalIBL/Specular/lut.exr");
+
   while (std::getline(ifs, line)) {
     auto texts = SplitString(line, ' ');
 

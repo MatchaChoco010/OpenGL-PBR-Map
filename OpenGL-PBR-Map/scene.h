@@ -15,6 +15,7 @@
 #include "mesh.h"
 #include "mesh_entity.h"
 #include "point_light.h"
+#include "specular_ibl_exr_cubemap_texture.h"
 #include "spot_light.h"
 
 namespace game {
@@ -29,6 +30,8 @@ class Scene {
   std::unique_ptr<ExrTexture> sky_texture_;
   GLfloat sky_intensity_;
   std::unique_ptr<ExrCubemapTexture> global_diffuse_ibl_texture_;
+  std::unique_ptr<SpecularIblExrCubemapTexture> global_specular_ibl_texture_;
+  std::unique_ptr<ExrTexture> specular_ibl_lut_texture_;
 
   /**
    * @brief 影ボリュームを再計算する

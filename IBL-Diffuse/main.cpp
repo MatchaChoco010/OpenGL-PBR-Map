@@ -137,7 +137,7 @@ bool Init() {
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
   // ウィンドウの作成
-  window = glfwCreateWindow(64, 64, "", nullptr, nullptr);
+  window = glfwCreateWindow(32, 32, "", nullptr, nullptr);
   if (window == nullptr) {
     std::cerr << "Can't create GLFW window." << std::endl;
     return false;
@@ -329,7 +329,7 @@ void IrradianceMap(const std::string& input_path, const float sky_intensity,
     glBindVertexArray(mesh_vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    std::unique_ptr<float[]> data = std::make_unique<float[]>(4 * 64 * 64);
+    std::unique_ptr<float[]> data = std::make_unique<float[]>(4 * 32 * 32);
     glReadPixels(0, 0, 32, 32, GL_RGBA, GL_FLOAT, data.get());
 
     SaveExr(std::move(data), output_paths[i]);
